@@ -2,12 +2,13 @@
 #define NEWSGROUP_H
 
 #include <string>
-#include 
+
+#include "Article"
 
 class Newsgroup {
 
 public: 
-	Newsgroup(int& idIn, std::string& titleIn) : id(idIn), title(titleIn) {}
+	Newsgroup(int& idIn, std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
 
 	int getId() const { return id; }
 
@@ -17,6 +18,7 @@ public:
 
 private:
 	int id;
+	int preArtId;
 	std::string title;
 	std::map<int, Article> articleMap;
 
