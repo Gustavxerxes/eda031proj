@@ -5,16 +5,22 @@
 
 #include "Article"
 
-class Newsgroup {
+class NewsGroup {
 
 public: 
-	Newsgroup(int& idIn, std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
+	NewsgGroup(int& idIn, std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
 
 	int getId() const { return id; }
 
 	std::string getTitle() const { return title; }
 
-	std::map<int Article> getArticles() const; // kan vi göra så detta tar en referens till vector istället ???
+	bool listArticles(std::vector<std::pair<int, std::string>>& arts) const; 
+	
+	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
+	
+	bool removeArticle(int artId);
+	
+	
 
 	
 
