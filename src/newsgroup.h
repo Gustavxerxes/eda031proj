@@ -12,9 +12,12 @@ public:
 
 	int getId() const { return id; }
 
-	std::string getTitle() const { return title; }
+	std::string getTitle() cheonst { return title; }
 
 	Article getArticle(int& id) const;
+
+	std::map<int Article> getArticles() const; // kan vi göra så detta tar en referens till vector istället ???
+
 
 	bool makeArticle(std::string& titleIn, std::string& authorIn, std::string& textIn);
 
