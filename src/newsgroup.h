@@ -21,9 +21,6 @@ public:
 	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
 	
 	bool removeArticle(int artId);
-	
-	
-
 
 	bool makeArticle(std::string& titleIn, std::string& authorIn, std::string& textIn);
 
@@ -33,7 +30,7 @@ private:
 	int id;
 	int preArtId;
 	std::string title;
-	std::map<int, std::shared_ptr<Article>> articleMap;
+	std::map<int, Article> articleMap;
 
 };
 #endif
