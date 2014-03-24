@@ -22,10 +22,6 @@ public:
 	
 	bool removeArticle(int artId);
 
-	bool makeArticle(std::string& titleIn, std::string& authorIn, std::string& textIn);
-
-	bool removeArticle(int& id);
-
 private:
 	int id;
 	int preArtId;
