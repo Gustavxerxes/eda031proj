@@ -22,6 +22,7 @@ public:
 	
 	bool removeArticle(int artId);
 
+
 	bool makeArticle(std::string& titleIn, std::string& authorIn, std::string& textIn);
 
 private:
