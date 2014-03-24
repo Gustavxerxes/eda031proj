@@ -14,15 +14,17 @@ public:
 
 	std::string getTitle() const { return title; }
 
-	std::map<int Article> getArticles() const;
+	Article getArticle(int& id) const;
 
-	
+	bool makeArticle(std::string& titleIn, std::string& authorIn, std::string& textIn);
+
+	bool removeArticle(int& id);
 
 private:
 	int id;
 	int preArtId;
 	std::string title;
-	std::map<int, Article> articleMap;
+	std::map<int, std::shared_ptr<Article>> articleMap;
 
 };
 #endif

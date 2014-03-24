@@ -3,17 +3,23 @@
 
 #include <string>
 
-class Article{
+class Article{ 
+
 public:
-	Article(int& idIn) : id(id) {}
+	Article(int& idIn, std::string& titleIn, std::string& authorIn, std::string& textIn)
+	 : id(id), title(titleIn), author(authorIn), text(textIn) {}
 
-	int getId() const { return id;}
+	int& getId() const { return id;}
 
-	std::string getTitle() const { return title;} 
+	std::string& getTitle() const { return title; } 
+
+	std::string& getAuthor() const { return author; }
+
+	std::string& getArticle() const { return articleText; }
 private:
 	int id;
 	std::string title;
 	std::string author;
-	std::string articleText;
+	std::string text;
 };
 #endif
