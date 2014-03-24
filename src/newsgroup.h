@@ -14,7 +14,9 @@ public:
 
 	std::string getTitle() const { return title; }
 
+	std::map<int Article> getArticles() const;
 
+	
 
 private:
 	int id;
