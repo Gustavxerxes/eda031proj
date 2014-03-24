@@ -14,7 +14,7 @@ public:
 
 	std::string getTitle() const { return title; }
 
-	std::map<int Article> getArticles() const;
+	std::map<int Article> getArticles() const; // kan vi göra så detta tar en referens till vector istället ???
 
 	
 
