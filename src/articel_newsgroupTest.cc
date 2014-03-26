@@ -7,11 +7,14 @@
 
 int main(int argc, char const *argv[])
 {
+
 	int index;
+
 	std::map<int, NewsGroup> newsMap; 
 	std::string s = ("test");
 	NewsGroup n = NewsGroup(1, s);
-	newsMap.emplace(1,n);
+	newsMap.insert( std::pair<int, NewsGroup>(1,n) );
+	//newsMap.emplace(1,n);
 
 	auto n2 = newsMap.find(1); 
 	std::cout << "Name: " << n2->second.getTitle() << std::endl;

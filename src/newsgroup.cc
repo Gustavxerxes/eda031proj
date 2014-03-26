@@ -1,11 +1,12 @@
 #include <map>
 #include <vector>
+#include <string>
 
 #include "newsgroup.h"
 #include "article.h"
 
 
-	bool NewsGroup::listArticles(std::vector<std::pair<int, std::string>>& arts) const{
+	bool NewsGroup::listArticles(std::vector<std::pair<int, std::string>>& arts) {
 		if ( articleMap.empty() ){
 			return false;
 		}

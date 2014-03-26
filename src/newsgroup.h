@@ -18,7 +18,7 @@ public:
 
 	Article getArticle(int& id) const;
 
-	bool listArticles(std::vector<std::pair<int, std::string>>& arts) const; 
+	bool listArticles(std::vector< std::pair<int, std::string> >& arts) ; 
 	
 	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
 	
