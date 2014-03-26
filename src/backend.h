@@ -15,7 +15,7 @@ class BackEnd {
 	bool listArticle(const int ngId, std::vector<std::pair<int, std::string>>& arts);
 	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
 	unsigned char removeArticle(const int ngId, const int artId);
-	unsigned char getArticle(const int ngId, const int artId, string[]& article);
+	unsigned char getArticle(const int ngId, const int artId, std::vector<std::string>& article);
 	enum {
 		unsigned char NO_ERR = 0:
 		unsigned char ERR_NG = 1;
@@ -28,3 +28,5 @@ class BackEnd {
 };
 
 #endif
+
+herp derp a clerp

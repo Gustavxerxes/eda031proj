@@ -9,7 +9,6 @@
 
 #include "frontend.h"
 #include "protocol.h"
-#include "myprotocol.h"
 
 using namespace std;
 using LINE = vector<char>;
@@ -151,14 +150,14 @@ void deleteArticle(const shared_ptr<Connection>& conn) {
 	conn->write(Protocol::ANS_DELETE_ART);
 	switch (conn)
 	{
-	case MyProtocol::NO_ERR :
+	case BackEnd::NO_ERR :
 		conn->write(Protocol::ANS_ACK);
 		break;
-	case MyProtocol::ERR_NG :
+	case BackEnd::ERR_NG :
 		conn->write(Protocol::ANS_NAK);
 		conn->write(Protocol::ERR_NG_DOES_NOT_EXIST);
 		break;
-	case MyProtocol::ERR_ART :
+	case BackEnd::ERR_ART :
 		conn->write(Protocol::ANS_NAK);
 		conn->write(Protocol::ERR_ART_DOES_NOT_EXIST);
 		break;
@@ -169,38 +168,66 @@ void deleteArticle(const shared_ptr<Connection>& conn) {
 }
 
 void getArticle(const shared_ptr<Connection>& conn) {
-	
+	vector<string> article;
+	auto succ = backend.getArticle(readInt(conn), readInt(conn), article);
+	conn->read(); // read COM_END byte
+
+	// Answer
+	conn->write(Protocol::ANS_GET_ART);
+	switch (succ)
+	{
+	case BackEnd::NO_ERR :
+		conn->write(Protocol::ANS_ACK);
+		writeString(article[0]);
+		writeString(article[1]);
+		writeString(article[2]);
+		break;
+	case BackEnd::ERR_NG :
+		conn->write(Protocol::ANS_NAK);
+		conn->write(Protocol::ERR_NG_DOES_NOT_EXIST);
+		break;
+	case BackEnd::ERR_ART :
+		conn->write(Protocol::ANS_NAK);
+		conn->write(Protocol::ERR_ART_DOES_NOT_EXIST);
+		break;
+	default :
+		break;
+	}
+	conn->write(Protocol::ANS_END);
 }
 
 void FrontEnd::readAndReply(const shared_ptr<Connection>& conn) {
 	unsigned char cmd = conn->read();
-	switch (cmd) {
-		case Protocol::COM_LIST_NG :
-			listNewsGroup(conn);
-			break;
+	switch (cmd)
+	{
+	case Protocol::COM_LIST_NG :
+		listNewsGroup(conn);
+		break;
 
-		case Protocol::COM_CREATE_NG :
-			createNewsGroup(conn);
-			break;
+	case Protocol::COM_CREATE_NG :
+		createNewsGroup(conn);
+		break;
 
-		case Protocol::COM_DELETE_NG :
-			deleteNewsGroup(conn);
-			break;
+	case Protocol::COM_DELETE_NG :
+		deleteNewsGroup(conn);
+		break;
 
-		case Protocol::COM_LIST_ART :
-			listArticles(conn);
-			break;
+	case Protocol::COM_LIST_ART :
+		listArticles(conn);
+		break;
 
-		case Protocol::COM_CREATE_ART :
-			createArticle(conn);
-			break;
+	case Protocol::COM_CREATE_ART :
+		createArticle(conn);
+		break;
 
-		case Protocol::COM_DELETE_ART :
-			deleteArticle(conn);
-			break;
+	case Protocol::COM_DELETE_ART :
+		deleteArticle(conn);
+		break;
 
-		case Protocol::COM_GET_ART :
-			getArticle(conn);
-			break;
+	case Protocol::COM_GET_ART :
+		getArticle(conn);
+		break;
+	default :
+		break;
 	}
 }
