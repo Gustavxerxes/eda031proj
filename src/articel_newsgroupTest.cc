@@ -1,6 +1,6 @@
 #include <string>
-#include "Article.h"
-#include "Newsgroup.h"
+#include "article.h"
+#include "newsgroup.h"
 
 int main(int argc, char const *argv[])
 {
@@ -9,8 +9,7 @@ int main(int argc, char const *argv[])
 	newsMap[1] = Newsgroup(1, "test");
 
 	Newsgroup n = newsMap.find(1); 
-	std::cout << "Name: " n.getName(); << std::endl;
-
+	std::cout << "Name: " << n.getName() << std::endl();
 
 
 
