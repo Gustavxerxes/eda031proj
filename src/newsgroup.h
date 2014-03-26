@@ -2,19 +2,27 @@
 #define NEWSGROUP_H
 
 #include <string>
+#include <map>
+#include <vector>
 
-#include "Article"
+#include "article.h"
 
-class Newsgroup {
+class NewsGroup {
 
 public: 
-	Newsgroup(int& idIn, std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
+	NewsGroup(int idIn, std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
 
 	int getId() const { return id; }
 
 	std::string getTitle() const { return title; }
 
+	Article getArticle(int idin) const;
 
+	bool listArticles(std::vector< std::pair<int, std::string> >& arts) ; 
+	
+	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
+	
+	bool removeArticle(int artId);
 
 private:
 	int id;

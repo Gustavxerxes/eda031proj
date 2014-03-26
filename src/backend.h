@@ -7,14 +7,15 @@
 #include <map>
 
 class BackEnd {
-	public;
-	bool listNG(std::vector<std::pair<int, std::string>>& ngs);
+	public:
+	Backend() : NGcount(0) {}
+	void listNG(std::vector<std::pair<int, std::string>>& ngs);
 	bool addNG(const std::string& name);
 	bool removeNG(const int id);
-	bool listArticle(std::vector<std::pair<int, std::string>>& arts);
+	bool listArticle(const int ngId, std::vector<std::pair<int, std::string>>& arts);
 	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
-	unsigned char removeArticle(const int ng_id, const int art_id);
-	unsigned char getArticle(const int ng_id, const int art_id, string[]& article);
+	unsigned char removeArticle(const int ngId, const int artId);
+	unsigned char getArticle(const int ngId, const int artId, string[]& article);
 	enum {
 		unsigned char NO_ERR = 0:
 		unsigned char ERR_NG = 1;
@@ -22,7 +23,7 @@ class BackEnd {
 	}
 
 	private:
-	std::map<int, NewsGroup::NewsGroup>;
+	std::map<int, NewsGroup::NewsGroup> database;
 	int NGcount;
 };
 
