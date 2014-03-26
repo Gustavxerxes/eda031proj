@@ -6,7 +6,7 @@
 #include "article.h"
 
 
-	bool NewsGroup::listArticles(std::vector<std::pair<int, std::string>>& arts) {
+	bool NewsGroup::listArticles(std::vector< std::pair<int, std::string> >& arts) {
 		if ( articleMap.empty() ){
 			return false;
 		}
@@ -17,7 +17,7 @@
 	} 
 	
 	bool NewsGroup::addArticle(const std::string& title, const std::string& author, const std::string& textbody) {
-		articleMap[++preArtId] = Article(preArtId, title, author, textbody);		
+		articleMap[preArtId] = Article(++preArtId, title, author, textbody);		
 
 	}
 	
@@ -29,5 +29,14 @@
 		}
 		return false;
 
+	}
+	Article NewsGroup::getArticle(int idin){
+		auto it = articleMap.find(idin); 
+		if(it !=  articleMap.end()){
+			return it->second;
+		}
+
+		return Article(0,"","","");
+		
 	}
 

@@ -9,7 +9,7 @@ public:
 	Article() {}
 
 	Article(const int& idIn, const std::string& titleIn, const std::string& authorIn, const std::string& textIn)
-	 : id(id), title(titleIn), author(authorIn), text(textIn) {}
+	 : id(idIn), title(titleIn), author(authorIn), text(textIn) {}
 
 	int getId() const { return id;}
 

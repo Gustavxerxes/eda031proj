@@ -16,7 +16,7 @@ public:
 
 	std::string getTitle() const { return title; }
 
-	Article getArticle(int idin) const;
+	Article getArticle(int idin);
 
 	bool listArticles(std::vector< std::pair<int, std::string> >& arts) ; 
 	
