@@ -15,12 +15,13 @@ public:
 	int getId() const { return id; }
 
 	std::string getTitle() const { return title; }
+	
 
 	bool fetchArticle(int idin, Article& art);
 
 	bool listArticles(std::vector< std::pair<int, std::string> >& arts) ; 
 	
-	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
+	void addArticle(const std::string& title, const std::string& author, const std::string& textbody);
 	
 	bool removeArticle(int artId);
 

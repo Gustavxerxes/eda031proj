@@ -12,6 +12,8 @@ CC  = g++
 CXXFLAGS =  -g -O2 -Wall -W -pedantic-errors
 CXXFLAGS += -Wmissing-braces -Wparentheses -Wold-style-cast 
 CXXFLAGS += -std=c++11 
+CXXFLAGS += -g
+LDFLAGS =   -g
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 #LDFLAGS += -stdlib=libc++

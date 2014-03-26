@@ -24,12 +24,11 @@ int main(int argc, char const *argv[])
 
 	Article art;
 	(n2->second).fetchArticle(1,art);
-	int i = art.getId();
 
-	std::cout << "Article 1 har id : " << i << std::endl;	
+	std::cout << "Article 1 har id : " << art.getId() << ", titel: " << art.getTitle() << ", author: " << art.getAuthor() << ", text: " << art.getArticle() << std::endl;	
 	std::vector< std::pair<int, std::string> > arts;
-	(n2->second).listArticles(arts);
-	(n2->second).removeArticle(1);
+	if( (n2->second).listArticles(arts) ) cout << "gick att lista";
+	if( (n2->second).removeArticle(1) ) cout << "gick att ta bort";
 
 	
 

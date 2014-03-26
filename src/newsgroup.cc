@@ -16,7 +16,7 @@
 	return true;
 	} 
 	
-	bool NewsGroup::addArticle(const std::string& title, const std::string& author, const std::string& textbody) {
+	void NewsGroup::addArticle(const std::string& title, const std::string& author, const std::string& textbody) {
 		articleMap[preArtId] = Article(++preArtId, title, author, textbody);		
 
 	}
