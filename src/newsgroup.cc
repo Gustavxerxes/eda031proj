@@ -22,13 +22,16 @@
 	}
 	
 	bool NewsGroup::removeArticle(int artId){
+
+		return (articleMap.erase(artId) > 0)
+		/*
 		auto it = articleMap.find(artId); 
 		if(it !=  articleMap.end()){
 			articleMap.erase(it);
 			return true;
 		}
 		return false;
-
+		*/
 	}
 	bool NewsGroup::fetchArticle(int idin, Article& art){
 		auto it = articleMap.find(idin); 
