@@ -18,10 +18,13 @@ int main(int argc, char const *argv[])
 	//newsMap.emplace(1,n);
 
 	auto n2 = newsMap.find(1); 
-	std::cout << n2->first << "Name: " << n2->second.getTitle() << std::endl;
+	std::cout << "id" << n2->first << "Name: " << n2->second.getTitle() << std::endl;
+	
 	n2->second.addArticle(string("title"),string("author"),string("text") );
 
-	std::cout << "Article 1 har id : " << n2->second.getArticle(1).getId() << std::endl;
+	int i = ((n2->second).getArticle(1)).getId() ;
+
+	std::cout << "Article 1 har id : " << i << std::endl;	
 	
 
 
