@@ -28,5 +28,3 @@ class BackEnd {
 };
 
 #endif
-
-herp derp a clerp
