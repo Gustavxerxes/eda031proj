@@ -22,9 +22,15 @@ int main(int argc, char const *argv[])
 	
 	n2->second.addArticle(string("title"),string("author"),string("text") );
 
-	int i = ((n2->second).getArticle(1)).getId() ;
+	Article art;
+	(n2->second).fetchArticle(1,art);
+	int i = art.getId();
 
 	std::cout << "Article 1 har id : " << i << std::endl;	
+	std::vector< std::pair<int, std::string> > arts;
+	(n2->second).listArticles(arts);
+	(n2->second).removeArticle(1);
+
 	
 
 

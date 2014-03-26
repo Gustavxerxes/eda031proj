@@ -16,7 +16,7 @@ public:
 
 	std::string getTitle() const { return title; }
 
-	bool NewsGroup::fetchArticle(int idin, Article& art)
+	bool fetchArticle(int idin, Article& art);
 
 	bool listArticles(std::vector< std::pair<int, std::string> >& arts) ; 
 	

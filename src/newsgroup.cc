@@ -23,7 +23,7 @@
 	
 	bool NewsGroup::removeArticle(int artId){
 
-		return (articleMap.erase(artId) > 0)
+		return (articleMap.erase(artId) > 0);
 		/*
 		auto it = articleMap.find(artId); 
 		if(it !=  articleMap.end()){
