@@ -33,14 +33,21 @@
 		return false;
 		*/
 	}
+<<<<<<< HEAD
+	Article& NewsGroup::getArticle(int idin){
+=======
 	bool NewsGroup::fetchArticle(int idin, Article& art){
+>>>>>>> f29059b5987b131bf08ee056c423636d9c72a60a
 		auto it = articleMap.find(idin); 
 
 		if(it !=  articleMap.end()){
 			art = it->second;
 			return true;
 		}
+<<<<<<< HEAD
+=======
 		return false;
+>>>>>>> f29059b5987b131bf08ee056c423636d9c72a60a
 	}
 
 
