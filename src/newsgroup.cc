@@ -30,13 +30,14 @@
 		return false;
 
 	}
-	Article NewsGroup::getArticle(int idin){
+	bool NewsGroup::fetchArticle(int idin, Article& art){
 		auto it = articleMap.find(idin); 
-		if(it !=  articleMap.end()){
-			return it->second;
-		}
 
-		return Article(0,"","","");
-		
+		if(it !=  articleMap.end()){
+			art = it->second;
+			return true;
+		}
+		return false;
 	}
+
 
