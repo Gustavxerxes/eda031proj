@@ -9,8 +9,6 @@ public:
 	void readAndReply(const shared_ptr<Connection>& conn);
 private:
 	BackEnd backend;
-
-	//lots of private methods
 };
 
 #endif

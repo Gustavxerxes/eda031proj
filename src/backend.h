@@ -13,12 +13,17 @@ class BackEnd {
 	bool removeNG(const int id);
 	bool listArticle(std::vector<std::pair<int, std::string>>& arts);
 	bool addArticle(const std::string& title, const std::string& author, const std::string& textbody);
-	bool removeArticle(const int id);
-	
+	unsigned char removeArticle(const int ng_id, const int art_id);
+	unsigned char getArticle(const int ng_id, const int art_id, string[]& article);
+	enum {
+		unsigned char NO_ERR = 0:
+		unsigned char ERR_NG = 1;
+		unsigned char ERR_ART = 2;
+	}
+
 	private:
 	std::map<int, NewsGroup::NewsGroup>;
 	int NGcount;
-
 };
 
 #endif
