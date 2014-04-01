@@ -39,23 +39,29 @@ void printwelcome(){
 
 
 }
-void printhelp(){
+void printhelp(bool b){
+	if(b){
 	cout << <<"\n" << line(10) << endl();
 	cout << "Help and commands" << endl();
 	cout << line(10) << endl();
-	cout << "Navigate in list by the number on the line \n 
+	cout << "Navigate in list by the number in the list\n 
 	or use one of the following commands \n" << endl();
 	
-	cout << "h -helptext and list of commands" << endl();
+	cout << "h -This helptext and list of commands" << endl();
 	cout << "H -Extended help text" << endl();
 	cout << "n -List newsgroups" << endl();
 	cout << "d -Delite newsgroups" << endl();	
 	cout << "l -List articles in curent newsgroup" << endl();
 	cout << "c -Create new article" << endl();
 	cout << "r -Remove article" << endl();
+	cout << "r -Remove article" << endl();
+	cout << "s -Toggle printing off this helptext" << endl();
 	cout << "q -Quit program" << endl();
 	cout << line(10) << "\n" << endl();
-	
+	}
+	else{
+		cout << "h -print helptext and list of commands" << endl();
+	}
 
 }
 void listNewsgroup(){
@@ -64,9 +70,10 @@ void listNewsgroup(){
 }
 
 int main(int argc, char* argv[]) {
+	bool alwaysHelpText = true;
 
 	connect();
 	printwelcome();
-	printhelp();
 	listNewsgroup();
+	printhelp(alwaysHelpText);
 }
