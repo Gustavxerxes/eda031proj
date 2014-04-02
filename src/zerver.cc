@@ -40,6 +40,9 @@ int main(int argc, char* argv[]){
 			} catch (ConnectionClosedException&) {
 				server.deregisterConnection(conn);
 				cout << "Client closed connection" << endl;
+			} catch (InvalidProtocolException&) {
+				server.deregisterConnection(conn);
+				cout << "Invalid use of protocol" << endl;
 			}
 		} else {
 			conn = make_shared<Connection>();
