@@ -9,12 +9,14 @@
 
 #include "frontend.h"
 #include "protocol.h"
+#include "invalidprotocolexception.h"
 
 using namespace std;
+using namespace Protocol;
 using LINE = vector<char>;
 
 int readInt(const shared_ptr<Connection>& conn) {
-	conn->read(); // read PAR_NUM byte
+	if (conn->read() != Protocol::PAR_NUM) throw InvalidProtocolException();
 	unsigned char b1 = conn->read();
 	unsigned char b2 = conn->read();
 	unsigned char b3 = conn->read();
@@ -23,7 +25,7 @@ int readInt(const shared_ptr<Connection>& conn) {
 }
 
 string readString(const shared_ptr<Connection>& conn) {
-	conn->read(); // read PAR_STRING byte
+	if (conn->read() != Protocol::PAR_STRING) throw InvalidProtocolException();
 	// Read the four N bytes
 	unsigned char b1 = conn->read();
 	unsigned char b2 = conn->read();
@@ -42,7 +44,7 @@ void writeInt(const shared_ptr<Connection>& conn, int value) {
 	conn->write(Protocol::PAR_NUM);
 	conn->write((value >> 24) & 0xFF);
 	conn->write((value >> 16) & 0xFF);
-	conn->write((value >> 8)	 & 0xFF);
+	conn->write((value >> 8) & 0xFF);
 	conn->write(value & 0xFF);
 }
 
@@ -63,7 +65,7 @@ void writeString(const shared_ptr<Connection>& conn, const string& s) {
 }
 
 void listNewsGroup(const shared_ptr<Connection>& conn) {
-	conn->read(); // Read the COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 	vector<pair<int,string>> ngs;
 	backend.listNG(ngs);
 
@@ -78,7 +80,7 @@ void listNewsGroup(const shared_ptr<Connection>& conn) {
 
 void createNewsGroup(const shared_ptr<Connection>& conn) {
 	string name = readString(conn);
-	conn->read(); // read the COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 	bool succ = backend.addNG(name);
 
 	// Answer
@@ -94,7 +96,7 @@ void createNewsGroup(const shared_ptr<Connection>& conn) {
 
 void deleteNewsGroup(const shared_ptr<Connection>& conn) {
 	bool succ = backend.removeNG(readInt(conn));
-	conn->read(); // read COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(Protocol::ANS_DELETE_NG);
@@ -109,7 +111,7 @@ void deleteNewsGroup(const shared_ptr<Connection>& conn) {
 
 void listArticles(const shared_ptr<Connection>& conn) {
 	int ng_id = readInt(conn);
-	conn->read(); // read COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 	vector<pair<int,string>> arts;
 	bool succ = backend.listArticle(arts);
 
@@ -131,7 +133,7 @@ void listArticles(const shared_ptr<Connection>& conn) {
 
 void createArticle(const shared_ptr<Connection>& conn) {
 	bool succ = backend.addArticle(readInt(conn), readString(conn), readString(conn), readString(conn));
-	conn->read(); // read COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(Protocol::ANS_CREATE_ART);
@@ -145,7 +147,7 @@ void createArticle(const shared_ptr<Connection>& conn) {
 
 void deleteArticle(const shared_ptr<Connection>& conn) {
 	int succ = backend.removeArticle(readInt(conn), readInt(conn));
-	conn->read(); // read COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(Protocol::ANS_DELETE_ART);
@@ -171,7 +173,7 @@ void deleteArticle(const shared_ptr<Connection>& conn) {
 void getArticle(const shared_ptr<Connection>& conn) {
 	vector<string> article;
 	auto succ = backend.getArticle(readInt(conn), readInt(conn), article);
-	conn->read(); // read COM_END byte
+	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(Protocol::ANS_GET_ART);
@@ -229,6 +231,7 @@ void FrontEnd::readAndReply(const shared_ptr<Connection>& conn) {
 		getArticle(conn);
 		break;
 	default :
+		throw InvalidProtocolException();
 		break;
 	}
 }
