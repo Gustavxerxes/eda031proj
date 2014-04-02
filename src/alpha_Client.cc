@@ -18,10 +18,11 @@ string line(int count){
 	}
 	return s;
 }
+
 string line(){
 	return line(40);
-	
 }
+
 void writeInt(const Connection& conn, int value) {
 	conn.write(Protocol::PAR_NUM);
 	conn.write((value >> 24) & 0xFF);
@@ -67,14 +68,14 @@ Connection connect(int argc, char* argv[]){
 	}
 	return conn;
 }
+
 void printwelcome(char* argv[]){
 	cout << "\n" << line() << endl;
 	cout << ".:Weclome to Alpha_client:." <<endl;
 	cout << "You are now connected to " << argv[1] << " on port " << argv[2] << endl;
 	cout << line() << "\n" << endl;
-	
-
 }
+
 void printhelp(bool b){
 	if(b){
 	cout << "\n" << line() << endl;
