@@ -47,7 +47,7 @@ void writeString(const Connection& conn, const string& s) {
 	}
 }
 
-Connection connect(int argc, char* argv[]){
+void connect(Connection conn, int argc, char* argv[]){
 	if (argc != 3) {
 		cerr << "Usage:" << argv[0] <<" host-name port-number" << endl;
 		exit(1);
@@ -61,12 +61,11 @@ Connection connect(int argc, char* argv[]){
 		exit(1);
 	}
 	
-	Connection conn(argv[1], port);
+	conn = Connection(argv[1], port);
 	if (!conn.isConnected()) {
 		cerr << "Connection attempt failed" << endl;
 		exit(1);
 	}
-	return conn;
 }
 
 void printwelcome(char* argv[]){
@@ -101,15 +100,20 @@ void printhelp(bool b){
 
 }
 void listNewsgroup(const Connection& conn){
-
+	/*
+	conn << Protocol::COM_LIST_ART << Protocol::COM_END;
+	int numbOf;
+	numbOf <<  
 	cout << "0 -Create new newsgruop" << endl;
 	//ska lista newsgruop och presentera
+	*/
 }
 
 int main(int argc, char* argv[]) {
 	bool alwaysHelpText = true;
 
-	Connection conn = connect(argc,argv);
+	Connection conn;
+	connect(conn, argc,argv);
 	printwelcome(argv);
 	listNewsgroup(conn);
 	printhelp(alwaysHelpText);
