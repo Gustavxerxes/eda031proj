@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib>
+#include "invalidprotocolexception.h"
 
 using namespace std;
 
@@ -47,7 +48,7 @@ void writeString(const Connection& conn, const string& s) {
 	}
 }
 int readInt(const Connection& conn) {
-	if(conn.read()!=Protocol::PAR_NUM) ; // read PAR_NUM byte
+	if(conn.read()!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
 	unsigned char b1 = conn.read();
 	unsigned char b2 = conn.read();
 	unsigned char b3 = conn.read();
@@ -56,7 +57,7 @@ int readInt(const Connection& conn) {
 }
 
 string readString(const Connection& conn) {
-	if(conn.read()!=Protocol::PAR_STRING) ; // read PAR_STRING byte
+	if(conn.read()!=Protocol::PAR_STRING) throw InvalidProtocolException(); // read PAR_STRING byte
 	// Read the four N bytes
 	unsigned char b1 = conn.read();
 	unsigned char b2 = conn.read();
@@ -71,12 +72,12 @@ string readString(const Connection& conn) {
 	return s;
 }
 
-void connect(Connection conn, int argc, char* argv[]){
+Connection connect(int argc, char* argv[]){
+
 	if (argc != 3) {
 		cerr << "Usage:" << argv[0] <<" host-name port-number" << endl;
 		exit(1);
 	}
-	
 	int port = -1;
 	try {
 		port = stoi(argv[2]);
@@ -84,12 +85,14 @@ void connect(Connection conn, int argc, char* argv[]){
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
 	}
-	
-	conn = Connection(argv[1], port);
+	Connection conn(argv[1], port);
 	if (!conn.isConnected()) {
 		cerr << "Connection attempt failed" << endl;
 		exit(1);
 	}
+	if(conn.isConnected()) cout << "conneted!" << endl;
+return conn;
+
 }
 
 void printwelcome(char* argv[]){
@@ -145,17 +148,16 @@ void createArt(const Connection& conn){
 }
 
 void listNewsgroup(const Connection& conn){
-	
 	conn.write(Protocol::COM_LIST_ART);
 	conn.write(Protocol::COM_END);
 	int numbOf;
-	if(conn.read()!=Protocol::ANS_END) ; //check correctness
+	if(conn.read()!=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	numbOf = readInt(conn); 
 	cout << "0 -Create new newsgruop" << endl;
 	for(int i = 0; i < numbOf; ++i){
 		cout << readInt(conn) << ": " << readString << endl;
 	}
-	if(conn.read() !=Protocol::ANS_END) ; //check correctness
+	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	
 }
 void printExtednHelp(){
@@ -164,16 +166,14 @@ void printExtednHelp(){
 
 int main(int argc, char* argv[]) {
 	bool alwaysHelpText = true;
-
-	Connection conn;
 	int currentNewsgroup = -1;
-	connect(conn, argc,argv);
-	printwelcome(argv);
-	//listNewsgroup(conn);
-	printhelp(alwaysHelpText);
-
 	string inCom;
+	Connection conn = connect(argc, argv); //connetion skapas här
+	
+	printwelcome(argv);
+	printhelp(alwaysHelpText);
 	while (cin >> inCom) {
+		printhelp(alwaysHelpText);
 		try{
 			switch (inCom[0]){
 				case 'h': printhelp(true);
@@ -203,9 +203,16 @@ int main(int argc, char* argv[]) {
 					continue;
 				case 'q': exit(0);
 					break;
+				case 't': 
+					if(conn.isConnected()) cout << "connected" << endl;
+					else cout << "not connected" << endl;
+					continue;
 			}
 		} catch (ConnectionClosedException&) {
 			cout << " no reply from server. Exiting." << endl;
+			exit(1);
+		} catch (InvalidProtocolException&) {
+			cout << "Protocol failed try to reconnect" << endl;
 			exit(1);
 		}
 
@@ -219,6 +226,5 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 		listArt(conn, currentNewsgroup);
-		printhelp(alwaysHelpText);
 	}
 }
