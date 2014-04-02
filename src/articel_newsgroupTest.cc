@@ -23,12 +23,18 @@ int main(int argc, char const *argv[])
 	n2->second.addArticle(string("title"),string("author"),string("text") );
 
 	Article art;
-	(n2->second).fetchArticle(1,art);
+	if((n2->second).fetchArticle(1,art)){
+		cout << "gick bra att hämta article 1" << endl();
+	}
+	if( !(n2->second).fetchArticle(2,art)){
+		cout << "gick inte att hämta article som inte finns (bra)" << endl();
+	}
 
 	std::cout << "Article 1 har id : " << art.getId() << ", titel: " << art.getTitle() << ", author: " << art.getAuthor() << ", text: " << art.getArticle() << std::endl;	
 	std::vector< std::pair<int, std::string> > arts;
-	if( (n2->second).listArticles(arts) ) cout << "gick att lista";
-	if( (n2->second).removeArticle(1) ) cout << "gick att ta bort";
+	if( (n2->second).listArticles(arts) ) cout << "gick att lista" << endl();
+
+	if( (n2->second).removeArticle(1) ) cout << "gick att ta bort" << endl();
 
 	
 
