@@ -1,5 +1,6 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
+#include "protocol.h"
 
 #include <iostream>
 #include <string>
@@ -8,7 +9,6 @@
 
 using namespace std;
 
-Connection conn;
 
 string line(int count){
 	string s ="";
@@ -22,8 +22,31 @@ string line(){
 	return line(40);
 	
 }
+void writeInt(const Connection& conn, int value) {
+	conn.write(Protocol::PAR_NUM);
+	conn.write((value >> 24) & 0xFF);
+	conn.write((value >> 16) & 0xFF);
+	conn.write((value >> 8)	 & 0xFF);
+	conn.write(value & 0xFF);
+}
 
-void connect(int argc, char* argv[]){
+void writeString(const Connection& conn, const string& s) {
+	conn.write(Protocol::PAR_STRING);
+
+	int n = s.size();
+	// Write N
+	conn.write((n >> 24) & 0xFF);
+	conn.write((n >> 16) & 0xFF);
+	conn.write((n >> 8)	 & 0xFF);
+	conn.write(n & 0xFF);
+
+	// Write chars
+	for (auto it = s.begin(); it != s.end(); ++it) {
+		conn.write(*it);
+	}
+}
+
+Connection connect(int argc, char* argv[]){
 	if (argc != 3) {
 		cerr << "Usage:" << argv[0] <<" host-name port-number" << endl;
 		exit(1);
@@ -37,11 +60,12 @@ void connect(int argc, char* argv[]){
 		exit(1);
 	}
 	
-	conn =  Connection(argv[1], port);
+	Connection conn(argv[1], port);
 	if (!conn.isConnected()) {
 		cerr << "Connection attempt failed" << endl;
 		exit(1);
 	}
+	return conn;
 }
 void printwelcome(char* argv[]){
 	cout << "\n" << line() << endl;
@@ -75,7 +99,8 @@ void printhelp(bool b){
 	}
 
 }
-void listNewsgroup(){
+void listNewsgroup(const Connection& conn){
+
 	cout << "0 -Create new newsgruop" << endl;
 	//ska lista newsgruop och presentera
 }
@@ -83,9 +108,9 @@ void listNewsgroup(){
 int main(int argc, char* argv[]) {
 	bool alwaysHelpText = true;
 
-	connect(argc,argv);
+	Connection conn = connect(argc,argv);
 	printwelcome(argv);
-	listNewsgroup();
+	listNewsgroup(conn);
 	printhelp(alwaysHelpText);
 
 	string inCom;
@@ -96,7 +121,7 @@ int main(int argc, char* argv[]) {
 			case 'H':
 				continue;
 			case 'n':
-				listNewsgroup();
+				listNewsgroup(conn);
 				continue;
 			case 'd':
 				continue;
