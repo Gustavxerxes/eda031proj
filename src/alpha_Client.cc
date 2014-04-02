@@ -166,14 +166,14 @@ void printExtednHelp(){
 
 int main(int argc, char* argv[]) {
 	bool alwaysHelpText = true;
-	int currentNewsgroup = -1;
+	bool skipOneH = false;
+ 	int currentNewsgroup = -1;
 	string inCom;
 	Connection conn = connect(argc, argv); //connetion skapas här
 	
 	printwelcome(argv);
 	printhelp(alwaysHelpText);
 	while (cin >> inCom) {
-		printhelp(alwaysHelpText);
 		try{
 			switch (inCom[0]){
 				case 'h': printhelp(true);
@@ -188,6 +188,7 @@ int main(int argc, char* argv[]) {
 					continue;
 				case 'l': 
 					if(currentNewsgroup<1){
+						printhelp(alwaysHelpText);
 						cout << "You are not inside any newsgroup" << endl;
 					}else{
 						listArt(conn, currentNewsgroup);
@@ -203,7 +204,8 @@ int main(int argc, char* argv[]) {
 					continue;
 				case 'q': exit(0);
 					break;
-				case 't': 
+				case 't':
+					printhelp(alwaysHelpText); 
 					if(conn.isConnected()) cout << "connected" << endl;
 					else cout << "not connected" << endl;
 					continue;
@@ -226,5 +228,7 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 		listArt(conn, currentNewsgroup);
+		printhelp(alwaysHelpText);
+	
 	}
 }
