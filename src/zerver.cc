@@ -28,12 +28,15 @@ int main(int argc, char* argv[]){
 		cerr << "Server initialization error." << endl;
 		exit(1);
 	}
-	
+
+ 	BackEnd be();
+	FrontEnd fe(be);
+
 	while (true) {
 		auto conn = server.waitForActivity();
 		if (conn != nullptr) {
 			try {
-				readAndReply(conn);
+				fe.readAndReply(conn);
 			} catch (ConnectionClosedException&) {
 				server.deregisterConnection(conn);
 				cout << "Client closed connection" << endl;
