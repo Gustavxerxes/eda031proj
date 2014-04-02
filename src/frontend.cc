@@ -49,11 +49,12 @@ void writeInt(const shared_ptr<Connection>& conn, int value) {
 void writeString(const shared_ptr<Connection>& conn, const string& s) {
 	conn->write(Protocol::PAR_STRING);
 
+	int n = size(s);
 	// Write N
-	conn.write((value >> 24) & 0xFF);
-	conn.write((value >> 16) & 0xFF);
-	conn.write((value >> 8)	 & 0xFF);
-	conn.write(value & 0xFF);
+	conn.write((n >> 24) & 0xFF);
+	conn.write((n >> 16) & 0xFF);
+	conn.write((n >> 8)	 & 0xFF);
+	conn.write(n & 0xFF);
 
 	// Write chars
 	for (auto it = s.begin(); it != s.end(); ++it) {
