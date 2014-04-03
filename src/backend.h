@@ -8,7 +8,7 @@
 
 class BackEnd {
 	public:
-	Backend() : NGcount(0) {}
+	BackEnd() : ng_count(0) {}
 	void listNG(std::vector<std::pair<int, std::string>>& ngs);
 	bool addNG(const std::string& name);
 	bool removeNG(const int id);
@@ -17,14 +17,14 @@ class BackEnd {
 	unsigned char removeArticle(const int ngId, const int artId);
 	unsigned char getArticle(const int ngId, const int artId, std::vector<std::string>& article);
 	enum {
-		unsigned char NO_ERR = 0:
-		unsigned char ERR_NG = 1;
-		unsigned char ERR_ART = 2;
-	}
+		NO_ERR = 0,
+		ERR_NG = 1,
+		ERR_ART = 2
+	};
 
 	private:
-	std::map<int, NewsGroup::NewsGroup> database;
-	int NGcount;
+	std::map<int, NewsGroup> database;
+	int ng_count;
 };
 
 #endif

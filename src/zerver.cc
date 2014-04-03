@@ -2,12 +2,16 @@
 #include "backend.h"
 #include "server.h"
 #include "connection.h"
+#include "connectionclosedexception.h"
+#include "invalidprotocolexception.h"
 
 #include <memory>
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include <cstdlib>
+
+using namespace std;
 
 int main(int argc, char* argv[]){
 	if (argc != 2) {
@@ -29,7 +33,7 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
- 	BackEnd be();
+ 	BackEnd be = BackEnd();
 	FrontEnd fe(be);
 
 	while (true) {

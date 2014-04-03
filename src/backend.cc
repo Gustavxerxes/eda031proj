@@ -6,27 +6,28 @@
 #include "newsgroup.h"
 
 
-using namespace sdt;
+using namespace std;
 
 
 void BackEnd::listNG(std::vector<std::pair<int, std::string>>& ngs){
 	
 	for(auto it = database.begin() ; it != database.end() ; ++it){
-		vector.push_back(make_pair(it->first, it->second));
+		ngs.push_back(make_pair(it->first, it->second.getTitle()));
 	}
 	return;
 }
 
 bool BackEnd::addNG(const std::string& name){
-		return database.emplace(NGcount++, NewsGroup(NGcount, name));
+	return (database.emplace(ng_count++, NewsGroup(ng_count, name))).second;
 }
 
 bool BackEnd::removeNG(const int id){
-		return database.remove(id);
+	auto ng = database.find(id);
+	return database.erase(ng) != database.end();
 }
 
 
-bool BackEnd::listArticles(int ngId, std::vector<std::pair<int, std::string>>& arts){
+bool BackEnd::listArticles(const int ngId, std::vector<std::pair<int, std::string>>& arts){
 	
 	map<int,NewsGroup>::iterator it;
 	

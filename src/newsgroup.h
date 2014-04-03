@@ -10,7 +10,7 @@
 class NewsGroup {
 
 public: 
-	NewsGroup(int idIn, std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
+	NewsGroup(int& idIn, const std::string& titleIn) : id(idIn), title(titleIn), preArtId(0) {}
 
 	int getId() const { return id; }
 
