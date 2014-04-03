@@ -5,10 +5,10 @@
 #include "newsgroup.h"
 #include "article.h"
 
-
+// Bör vara void då även en listning av en tom artikel mapp ska lyckas
 	bool NewsGroup::listArticles(std::vector< std::pair<int, std::string> >& arts) {
 		if ( articleMap.empty() ){
-			return false;
+			return true;
 		}
 		for(auto it = articleMap.begin() ; it != articleMap.end() ; ++it){
 			arts.push_back(  make_pair( it->first, (it->second).getTitle() ) );

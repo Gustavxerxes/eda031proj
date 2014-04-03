@@ -18,7 +18,7 @@ void BackEnd::listNG(std::vector<std::pair<int, std::string>>& ngs){
 }
 
 bool BackEnd::addNG(const std::string& name){
-	return (database.emplace(ng_count++, NewsGroup(ng_count, name))).second;
+	return (database.emplace(++ng_count, NewsGroup(ng_count, name))).second;
 }
 
 bool BackEnd::removeNG(const int id){
