@@ -13,7 +13,7 @@ public:
 private:
 	BackEnd backend;
 
-	void writeInt(const std::shared_ptr<Connection>& conn, int& value);
+	void writeInt(const std::shared_ptr<Connection>& conn, int&	 value);
 	void writeString(const std::shared_ptr<Connection>& conn, const std::string& s);
 	void listNewsGroup(const std::shared_ptr<Connection>& conn);
 	void createNewsGroup(const std::shared_ptr<Connection>& conn);

@@ -76,6 +76,7 @@ void FrontEnd::listNewsGroup(const shared_ptr<Connection>& conn) {
 		writeInt(conn, it->first);
 		writeString(conn, it->second);
 	}
+		conn->write(Protocol::ANS_END);
 }
 
 void FrontEnd::createNewsGroup(const shared_ptr<Connection>& conn) {
@@ -113,16 +114,17 @@ void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
 	int ng_id = readInt(conn);
 	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 	vector<pair<int,string>> arts;
-	bool succ = backend.listArticle(ng_id, arts);
+	bool succ = backend.listArticles(ng_id, arts);
 
 	// Answer
 	conn->write(Protocol::ANS_LIST_ART);
 	if (succ) {
 		conn->write(Protocol::ANS_ACK);
-		writeInt(conn, arts.size());
+		int str_len = arts.size();
+		writeInt(conn, str_len);
 		for (auto it = arts.begin(); it != arts.end(); ++it) {
-			writeInt(it->first);
-			writeString(it->second);
+			writeInt(conn, it->first);
+			writeString(conn, it->second);
 		}
 	} else {
 		conn->write(Protocol::ANS_NAK);
@@ -132,7 +134,9 @@ void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
-	bool succ = backend.addArticle(readInt(conn), readString(conn), readString(conn), readString(conn));
+	int ng_id = readInt(conn);
+	string title = readString(conn), author = readString(conn), textbody = readString(conn);
+	bool succ = backend.addArticle(ng_id, title, author, textbody);
 	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
@@ -146,12 +150,12 @@ void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
-	int succ = backend.removeArticle(readInt(conn), readInt(conn));
+	auto succ = backend.removeArticle(readInt(conn), readInt(conn));
 	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(Protocol::ANS_DELETE_ART);
-	switch (conn)
+	switch (succ)
 	{
 	case BackEnd::NO_ERR :
 		conn->write(Protocol::ANS_ACK);
@@ -181,9 +185,9 @@ void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
 	{
 	case BackEnd::NO_ERR :
 		conn->write(Protocol::ANS_ACK);
-		writeString(article[0]);
-		writeString(article[1]);
-		writeString(article[2]);
+		writeString(conn, article[0]);
+		writeString(conn, article[1]);
+		writeString(conn, article[2]);
 		break;
 	case BackEnd::ERR_NG :
 		conn->write(Protocol::ANS_NAK);

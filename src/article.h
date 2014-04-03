@@ -17,7 +17,7 @@ public:
 
 	std::string getAuthor() const { return author; }
 
-	std::string getArticle() const { return text; }
+	std::string getText() const { return text; }
 private:
 	int id;
 	std::string title;
