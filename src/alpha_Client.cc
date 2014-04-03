@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib>
+#include "invalidprotocolexception.h"
 
 using namespace std;
 
@@ -46,13 +47,37 @@ void writeString(const Connection& conn, const string& s) {
 		conn.write(*it);
 	}
 }
+int readInt(const Connection& conn) {
+	if(conn.read()!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
+	unsigned char b1 = conn.read();
+	unsigned char b2 = conn.read();
+	unsigned char b3 = conn.read();
+	unsigned char b4 = conn.read();
+	return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+}
 
-void connect(Connection conn, int argc, char* argv[]){
+string readString(const Connection& conn) {
+	if(conn.read()!=Protocol::PAR_STRING) throw InvalidProtocolException(); // read PAR_STRING byte
+	// Read the four N bytes
+	unsigned char b1 = conn.read();
+	unsigned char b2 = conn.read();
+	unsigned char b3 = conn.read();
+	unsigned char b4 = conn.read();
+	int n = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+
+	string s;
+	for (int i = 0; i < n; ++i) {
+		s += conn.read();
+	}
+	return s;
+}
+
+Connection connect(int argc, char* argv[]){
+
 	if (argc != 3) {
 		cerr << "Usage:" << argv[0] <<" host-name port-number" << endl;
 		exit(1);
 	}
-	
 	int port = -1;
 	try {
 		port = stoi(argv[2]);
@@ -60,12 +85,14 @@ void connect(Connection conn, int argc, char* argv[]){
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
 	}
-	
-	conn = Connection(argv[1], port);
+	Connection conn(argv[1], port);
 	if (!conn.isConnected()) {
 		cerr << "Connection attempt failed" << endl;
 		exit(1);
 	}
+	if(conn.isConnected()) cout << "conneted!" << endl;
+return conn;
+
 }
 
 void printwelcome(char* argv[]){
@@ -99,60 +126,109 @@ void printhelp(bool b){
 	}
 
 }
+
+void createNewsgroup(const Connection& conn){
+
+}
+
+void listArt(const Connection& conn, int currentNewsgroup){
+
+}
+
+void deliteNewsgroup(const Connection& conn){
+
+}
+
+void removeArt(const Connection& conn){
+
+}
+
+void createArt(const Connection& conn){
+
+}
+
 void listNewsgroup(const Connection& conn){
-	/*
-	conn << Protocol::COM_LIST_ART << Protocol::COM_END;
+	conn.write(Protocol::COM_LIST_ART);
+	conn.write(Protocol::COM_END);
 	int numbOf;
-	numbOf <<  
+	if(conn.read()!=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	numbOf = readInt(conn); 
 	cout << "0 -Create new newsgruop" << endl;
-	//ska lista newsgruop och presentera
-	*/
+	for(int i = 0; i < numbOf; ++i){
+		cout << readInt(conn) << ": " << readString << endl;
+	}
+	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	
+}
+void printExtednHelp(){
+	printhelp(true);
 }
 
 int main(int argc, char* argv[]) {
 	bool alwaysHelpText = true;
-
-	Connection conn;
-	connect(conn, argc,argv);
-	printwelcome(argv);
-	listNewsgroup(conn);
-	printhelp(alwaysHelpText);
-
+	bool skipOneH = false;
+ 	int currentNewsgroup = -1;
 	string inCom;
+	Connection conn = connect(argc, argv); //connetion skapas här
+	
+	printwelcome(argv);
+	printhelp(alwaysHelpText);
 	while (cin >> inCom) {
-		switch (inCom[0]){
-			case 'h': printhelp(true);
-				continue;
-			case 'H':
-				continue;
-			case 'n':
-				listNewsgroup(conn);
-				continue;
-			case 'd':
-				continue;
-			case 'l':
-				continue;
-			case 'c':
-				continue;
-			case 'r':
-				continue;
-			case 's':
-				alwaysHelpText = !alwaysHelpText;
-				alwaysHelpText? cout << "help on" << endl : cout<< "help off" << endl;
-				continue;
-			case 'q': exit(0);
-				break;			
+		try{
+			switch (inCom[0]){
+				case 'h': printhelp(true);
+					continue;
+				case '0': createNewsgroup(conn);
+					continue;
+				case 'H': printExtednHelp();
+					continue;
+				case 'n': listNewsgroup(conn);
+					continue;
+				case 'd': deliteNewsgroup(conn);
+					continue;
+				case 'l': 
+					if(currentNewsgroup<1){
+						printhelp(alwaysHelpText);
+						cout << "You are not inside any newsgroup" << endl;
+					}else{
+						listArt(conn, currentNewsgroup);
+					}
+					continue;
+				case 'c': createArt(conn);
+					continue;
+				case 'r': removeArt(conn);
+					continue;
+				case 's':
+					alwaysHelpText = !alwaysHelpText;
+					alwaysHelpText? cout << "help on" << endl : cout<< "help off" << endl;
+					continue;
+				case 'q': exit(0);
+					break;
+				case 't':
+					printhelp(alwaysHelpText); 
+					if(conn.isConnected()) cout << "connected" << endl;
+					else cout << "not connected" << endl;
+					continue;
+			}
+		} catch (ConnectionClosedException&) {
+			cout << " no reply from server. Exiting." << endl;
+			exit(1);
+		} catch (InvalidProtocolException&) {
+			cout << "Protocol failed try to reconnect" << endl;
+			exit(1);
 		}
-			
-		int inComnbr = -1;
+
+
+		// flytta detta ?
 		try {
-			inComnbr = stoi(inCom);
+			currentNewsgroup = stoi(inCom);
+
 		} catch (exception& e) {
 			cout << "Not a valid command, try again" << endl;
 			continue;
 		}
-
-	printhelp(alwaysHelpText);
-
+		listArt(conn, currentNewsgroup);
+		printhelp(alwaysHelpText);
+	
 	}
 }
