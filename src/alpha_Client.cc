@@ -148,10 +148,10 @@ void createArt(const Connection& conn){
 }
 
 void listNewsgroup(const Connection& conn){
-	conn.write(Protocol::COM_LIST_ART);
+	conn.write(Protocol::COM_LIST_NG);
 	conn.write(Protocol::COM_END);
 	int numbOf;
-	if(conn.read()!=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(conn.read()!=Protocol::ANS_LIST_NG) throw InvalidProtocolException(); //check correctness
 	numbOf = readInt(conn); 
 	cout << "0 -Create new newsgruop" << endl;
 	for(int i = 0; i < numbOf; ++i){
