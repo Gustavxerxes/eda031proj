@@ -14,18 +14,20 @@ CXXFLAGS += -Wmissing-braces -Wparentheses -Wold-style-cast
 CXXFLAGS += -std=c++11 
 CXXFLAGS += -g
 LDFLAGS =   -g
-CPPFLAGS =  -stdlib=libc++
-CXXFLAGS += -stdlib=libc++
-LDFLAGS += -stdlib=libc++
+# CPPFLAGS =  -stdlib=libc++
+# CXXFLAGS += -stdlib=libc++
+# LDFLAGS += -stdlib=libc++
 
-all: libclientserver.a
+SOURCE_DIR = src
+OBJECT_DIR = build
+SOURCE_FILES = $(SOURCE_DIR)/%.cc
+OBJECT_FILES = $(OBJECT_DIR)/%.o
 
-# Create the library; ranlib is for Darwin and maybe other systems.
-# Doesn't seem to do any damage on other systems.
 
-libclientserver.a: connection.o server.o
-	ar rv libclientserver.a  connection.o server.o
-	ranlib libclientserver.a
+all: 
+
+$(OBJECT_FILES) : $(OBJECT_DIR)/%.o $(SOURCE_DIR)/%.cc
+	$(CXX) $()
 
 # Phony targets
 .PHONY: all clean
@@ -33,14 +35,3 @@ libclientserver.a: connection.o server.o
 # Standard clean
 clean:
 	rm -f *.o libclientserver.a
-
-# Generate dependencies in *.d files
-%.d: %.cc
-	@set -e; rm -f $@; \
-         $(CPP) -MM $(CPPFLAGS) $< > $@.$$$$; \
-         sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-         rm -f $@.$$$$
-
-# Include the *.d files
-SRC = $(wildcard *.cc)
-include $(SRC:.cc=.d)
