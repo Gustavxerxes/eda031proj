@@ -24,12 +24,16 @@ string line(){
 	return line(40);
 }
 
-void writeInt(const Connection& conn, int value) {
-	conn.write(Protocol::PAR_NUM);
+void helperWrite(const Connection& conn, int value){
 	conn.write((value >> 24) & 0xFF);
 	conn.write((value >> 16) & 0xFF);
 	conn.write((value >> 8)	 & 0xFF);
 	conn.write(value & 0xFF);
+}
+
+void writeInt(const Connection& conn, int value) {
+	conn.write(Protocol::PAR_NUM);
+	helperWrite(conn,value);
 }
 
 void writeString(const Connection& conn, const string& s) {
@@ -37,18 +41,15 @@ void writeString(const Connection& conn, const string& s) {
 
 	int n = s.size();
 	// Write N
-	conn.write((n >> 24) & 0xFF);
-	conn.write((n >> 16) & 0xFF);
-	conn.write((n >> 8)	 & 0xFF);
-	conn.write(n & 0xFF);
+	helperWrite(conn,n);
 
 	// Write chars
 	for (auto it = s.begin(); it != s.end(); ++it) {
 		conn.write(*it);
 	}
 }
-int readInt(const Connection& conn) {
-	if(conn.read()!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
+
+int helperRead(const Connection& conn){
 	unsigned char b1 = conn.read();
 	unsigned char b2 = conn.read();
 	unsigned char b3 = conn.read();
@@ -56,14 +57,15 @@ int readInt(const Connection& conn) {
 	return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
 }
 
+int readInt(const Connection& conn) {
+	if(conn.read()!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
+	return helperRead(conn);
+}
+
 string readString(const Connection& conn) {
 	if(conn.read()!=Protocol::PAR_STRING) throw InvalidProtocolException(); // read PAR_STRING byte
 	// Read the four N bytes
-	unsigned char b1 = conn.read();
-	unsigned char b2 = conn.read();
-	unsigned char b3 = conn.read();
-	unsigned char b4 = conn.read();
-	int n = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+	int n = helperRead(conn);
 
 	string s;
 	for (int i = 0; i < n; ++i) {
@@ -104,31 +106,49 @@ void printwelcome(char* argv[]){
 
 void printhelp(bool b){
 	if(b){
-	cout << "\n" << line() << endl;
+	cout << "\n\n\n" << line() << endl;
 	cout << ".:Help and commands:." << endl;
 	cout << "Navigate in list by the number in the list\n" 
 	<< "or use one of the following commands \n" << endl;
 	
-	cout << "h -This helptext and list of commands" << endl;
-	cout << "H -Extended help text" << endl;
-	cout << "n -List newsgroups" << endl;
-	cout << "d -Delite newsgroups" << endl;	
-	cout << "l -List articles in curent newsgroup" << endl;
-	cout << "c -Create new article" << endl;
-	cout << "r -Remove article" << endl;
-	cout << "s -Toggle constant printing off this helptext" << endl;
-	cout << "q -Quit program" << endl;
+	cout << "(h) -This helptext and list of commands" << endl;
+	cout << "(H) -Extended help text" << endl;
+	cout << "(n) -List newsgroups" << endl;
+	cout << "(d) -Delite newsgroups" << endl;	
+	cout << "(l) -List articles in curent newsgroup" << endl;
+	cout << "(c) -Create new article" << endl;
+	cout << "(r) -Remove article" << endl;
+	cout << "(s) -Toggle constant printing off this helptext" << endl;
+	cout << "(q) -Quit program" << endl;
+	cout << "(0) -Create new newsgruop" << endl;
 	cout << line() << "\n" << endl;
 	}
 	else{
-		cout << line() << "\n" <<
-		"h -print helptext and list of commands\n" << line() << endl;
+		cout << "\n\n\n"  << line() << "\n" <<
+		"(h) -print helptext and list of commands\n" << line() << endl;
 	}
 
 }
 
 void createNewsgroup(const Connection& conn){
-
+	cout << "\nTitle for new Newsgroup?: " << endl;
+	conn.write(Protocol::COM_CREATE_NG);
+	string title;
+	std::getline (std::cin,title);
+	std::getline (std::cin,title);
+	writeString(conn, title); 
+	conn.write(Protocol::COM_END);
+	if(conn.read() !=Protocol::ANS_CREATE_NG) throw InvalidProtocolException(); //check correctness
+	char ans = conn.read();
+	switch(ans){
+		case Protocol::ANS_NAK:
+		 cout << "ANS_NAK" << endl;
+		 if(conn.read() == Protocol::ERR_NG_ALREADY_EXISTS) cout << "ERR_NG_ALREADY_EXISTS" << endl;
+		break;
+		case Protocol::ANS_ACK: cout << "ANS_ACK" << endl;
+		break;
+	}
+	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 }
 
 void listArt(const Connection& conn, int currentNewsgroup){
@@ -148,17 +168,20 @@ void createArt(const Connection& conn){
 }
 
 void listNewsgroup(const Connection& conn){
+	cout << "List of Newsgroup on the server:" << endl;
 	conn.write(Protocol::COM_LIST_NG);
 	conn.write(Protocol::COM_END);
 	int numbOf;
 	if(conn.read()!=Protocol::ANS_LIST_NG) throw InvalidProtocolException(); //check correctness
-	numbOf = readInt(conn); 
-	cout << "0 -Create new newsgruop" << endl;
+	numbOf = readInt(conn);
+	if(numbOf == 0) cout << "No newsgroups exist" << endl; 
 	for(int i = 0; i < numbOf; ++i){
-		cout << readInt(conn) << ": " << readString << endl;
+		cout << "(" << readInt(conn) << ")" << ": ";
+		cout << readString(conn) << endl;
 	}
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
-	
+	cout << "\n(0) -Create new newsgruop" << endl;
+	cout << line() << endl;
 }
 void printExtednHelp(){
 	printhelp(true);
@@ -173,6 +196,7 @@ int main(int argc, char* argv[]) {
 	
 	printwelcome(argv);
 	printhelp(alwaysHelpText);
+	listNewsgroup(conn);
 	while (cin >> inCom) {
 		try{
 			switch (inCom[0]){
@@ -182,7 +206,9 @@ int main(int argc, char* argv[]) {
 					continue;
 				case 'H': printExtednHelp();
 					continue;
-				case 'n': listNewsgroup(conn);
+				case 'n': 
+				printhelp(alwaysHelpText);
+				listNewsgroup(conn);
 					continue;
 				case 'd': deliteNewsgroup(conn);
 					continue;
