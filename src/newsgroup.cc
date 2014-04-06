@@ -17,7 +17,8 @@
 	} 
 	
 	void NewsGroup::addArticle(const std::string& title, const std::string& author, const std::string& textbody) {
-		articleMap[preArtId] = Article(++preArtId, title, author, textbody);		
+		++preArtId;
+		articleMap[preArtId] = Article(preArtId, title, author, textbody);		
 
 	}
 	
@@ -40,6 +41,7 @@
 			art = it->second;
 			return true;
 		}
+		return false;
 	}
 
 

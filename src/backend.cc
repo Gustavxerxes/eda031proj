@@ -17,13 +17,15 @@ void BackEnd::listNG(std::vector<std::pair<int, std::string>>& ngs){
 	return;
 }
 
-bool BackEnd::addNG(const std::string& name){
+bool BackEnd::addNG(const std::string& name){ //Måste fixas då det inte får finnas dubletter i newsgroup. Dvs de får inte ha samma namn.
 	return (database.emplace(++ng_count, NewsGroup(ng_count, name))).second;
 }
 
 bool BackEnd::removeNG(const int id){
 	auto ng = database.find(id);
-	return database.erase(ng) != database.end();
+	if (ng == database.end()) return false;
+	database.erase(ng);
+	return true;
 }
 
 

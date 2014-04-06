@@ -150,7 +150,9 @@ void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
-	auto succ = backend.removeArticle(readInt(conn), readInt(conn));
+	int ng = readInt(conn);
+	int art = readInt(conn);
+	auto succ = backend.removeArticle(ng, art);
 	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
@@ -176,7 +178,9 @@ void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
 
 void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
 	vector<string> article;
-	auto succ = backend.getArticle(readInt(conn), readInt(conn), article);
+	int ng = readInt(conn);
+	int art = readInt(conn);
+	auto succ = backend.getArticle(ng, art, article);
 	if (conn->read() != Protocol::COM_END) throw InvalidProtocolException();
 
 	// Answer
