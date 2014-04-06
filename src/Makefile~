@@ -34,3 +34,15 @@ client: alpha_client.o connection.o
 # Standard clean
 clean:
 	rm -f *.o $(DIR_OBJ)/$(PROGS)
+
+# Generate dependencies in *.d files
+%.d: %.cc
+	@set -e; rm -f $(DIR_OBJ)$@; \
+         $(CPP) -MM $(CPPFLAGS) $< > $(DIR_OBJ)$@.$$$$; \
+         sed 's,\($*\)\.o[ :]*,\1.o $(DIR_OBJ)$@ : ,g' < $(DIR_OBJ)$@.$$$$ > $(DIR_OBJ)$@; \
+         rm -f $(DIR_OBJ)$@.$$$$
+
+# Include the *.d files
+SRC = $(wildcard *.cc)
+include $(SRC:.cc=.d)
+	rm -Rf $(DIR_OBJ)*.o $(DIR_BIN)$(PROGS)
