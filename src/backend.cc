@@ -4,6 +4,7 @@
 #include "backend.h"
 #include "article.h"
 #include "newsgroup.h"
+#include <algorithm>
 
 
 using namespace std;
@@ -17,14 +18,11 @@ void BackEnd::listNG(std::vector<std::pair<int, std::string>>& ngs){
 }
 
 bool BackEnd::addNG(const std::string& name){
-	auto it = database.find_if(database.begin(), database.end(),
-		[name] (auto it) { return (it->second).getTitle() == name; });
-	if (it == database.end()) {
-		database.insert(++ng_count, NewsGroup(ng_count, name));
-		return true;
-	} else {
-		return false;
+	for (auto it = database.begin(); it != database.end(); ++it ) {
+		if (it->second.getTitle() == name) return false;
 	}
+	database.emplace(++ng_count, NewsGroup(ng_count, name));
+	return true; 
 }
 
 bool BackEnd::removeNG(const int id){
