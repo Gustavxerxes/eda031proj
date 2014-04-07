@@ -143,8 +143,9 @@ void printhelp(bool b){
 
 }
 
-void listNewsgroup(const Connection& conn, const int currentNewsgroup, int& currentArticle){
+void listNewsgroup(const Connection& conn, const int currentNewsgroup, string& currentTitel, int& currentArticle){
 	currentArticle = -1;
+	currentTitel = "";
 	cout << "List of Newsgroup on the server:\n" << endl;
 	conn.write(Protocol::COM_LIST_NG);
 	conn.write(Protocol::COM_END);
@@ -153,12 +154,17 @@ void listNewsgroup(const Connection& conn, const int currentNewsgroup, int& curr
 	numbOf = readInt(conn);
 	if(numbOf == 0) cout << "No newsgroups exist" << endl; 
 	int index;
+	string titel;
 	for(int i = 0; i < numbOf; ++i){
 		index = readInt(conn);
 		if(index == currentNewsgroup) cout << "[";
 		cout << "(" << index << ")" << ": ";
-		cout << readString(conn);
-		if(index == currentNewsgroup) cout << "]";
+		titel = readString(conn);
+		cout << titel;
+		if(index == currentNewsgroup){
+			cout << "]";
+			currentTitel = titel;
+		}
 		cout << endl;
 	}
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
@@ -188,8 +194,8 @@ void createNewsgroup(const Connection& conn){
 	cin.ignore(10000,'\n');
 }
 
-void listArt(const Connection& conn, int& currentNewsgroup, int& currentArticle){
-	currentArticle = 0;
+void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel, int& currentArticle){
+	if(currentArticle < 0) currentArticle = 0;
 	if(currentNewsgroup < 1){ 
 		cout << "Newsgroup to list? ";
 		cin >> currentNewsgroup;
@@ -204,12 +210,12 @@ void listArt(const Connection& conn, int& currentNewsgroup, int& currentArticle)
 	switch (ans){
 		case Protocol::ANS_ACK:
 		{
-
+			printhelp(true);
 			numbOf = readInt(conn);
 			if(numbOf == 0){
 				cout << "No articles exist" << endl;
 				currentArticle = -1;
-			} 
+			}
 			int index;
 			for(int i = 0; i < numbOf; ++i){
 				index = readInt(conn);
@@ -217,6 +223,7 @@ void listArt(const Connection& conn, int& currentNewsgroup, int& currentArticle)
 				cout << readString(conn);
 				cout << endl;
 			}
+			if(numbOf > 0) cout << "\n type n to list newsgroups again" << endl;
 		}
 		break;
 		case Protocol::ANS_NAK: 
@@ -229,7 +236,7 @@ void listArt(const Connection& conn, int& currentNewsgroup, int& currentArticle)
 		cout << "\npress enter to continue";
 		cin.ignore(10000,'\n');
 		printhelp(true);
-		listNewsgroup(conn, currentNewsgroup, currentArticle);			
+		listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);			
 	}
 }
 
@@ -274,13 +281,45 @@ void deliteNewsgroup(const Connection& conn, int& currentNewsgroup){
 		if(currentNewsgroup < 0) delite = false;
 	}
 }
-
-void removeArt(const Connection& conn){
+void getArticle(const Connection& conn, const int currentNewsgroup, const int currentArticle){
 
 }
 
-void createArt(const Connection& conn){
+void removeArt(const Connection& conn, const int currentNewsgroup, const string& currentTitel, const int currentArticle){
 
+}
+
+void createArt(const Connection& conn, int& currentNewsgroup){
+	if(currentNewsgroup < 1){ 
+		cout << "Newsgroup to creat Articel in? ";
+		cin >> currentNewsgroup;
+		cin.ignore(10000,'\n');
+	}	
+	conn.write(Protocol::Protocol::COM_CREATE_ART);
+	writeInt(conn, currentNewsgroup);
+	cout << "\nTitle for new article: ";
+	string in;
+	std::getline (std::cin,in);
+	writeString(conn, in); 
+	cout << "\nAuther: ";
+	std::getline (std::cin,in);
+	writeString(conn, in); 
+	cout << "\nText: " << endl;
+	std::getline (std::cin,in);
+	writeString(conn, in); 
+	conn.write(Protocol::COM_END);
+	if(conn.read() !=Protocol::ANS_CREATE_ART) throw InvalidProtocolException(); //check correctness
+	char ans = conn.read();
+	switch(ans){
+		case Protocol::ANS_NAK:
+		  if(conn.read() == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
+		break;
+		case Protocol::ANS_ACK: cout << "Articel created" << endl;
+		break;
+	}
+	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	cout << "\npress enter to continue";
+	cin.ignore(10000,'\n');
 }
 
 void printExtednHelp(){
@@ -292,12 +331,12 @@ int main(int argc, char* argv[]) {
 	bool skipOneH = false;
  	int currentNewsgroup = -1;
  	int currentArticle = -1;
+ 	string currentTitel = "";
 	string inCom;
 	Connection conn = connect(argc, argv); //connetion skapas här
-	
 	printwelcome(argv);
 	printhelp(alwaysHelpText);
-	listNewsgroup(conn, currentNewsgroup, currentArticle);
+	listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 	while (cin >> inCom) {
 		cin.ignore(10000,'\n');
 		cin.clear();
@@ -308,24 +347,26 @@ int main(int argc, char* argv[]) {
 				case '0': 
 					createNewsgroup(conn);
 					printhelp(alwaysHelpText);
-					listNewsgroup(conn, currentNewsgroup, currentArticle);
+					listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
 				case 'H': printExtednHelp();
 					continue;
 				case 'n': 
 				printhelp(alwaysHelpText);
-				listNewsgroup(conn, currentNewsgroup, currentArticle);
+				listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
 				case 'd': deliteNewsgroup(conn, currentNewsgroup);
 					printhelp(alwaysHelpText);
-					listNewsgroup(conn, currentNewsgroup, currentArticle);
+					listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
 				case 'l': 
-					listArt(conn, currentNewsgroup, currentArticle);	
+					listArt(conn, currentNewsgroup, currentTitel, currentArticle);	
 					continue;
-				case 'c': createArt(conn);
+				case 'c': 
+					listArt(conn, currentNewsgroup, currentTitel, currentArticle);
+					createArt(conn, currentNewsgroup);
 					continue;
-				case 'r': removeArt(conn);
+				case 'r': removeArt(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
 				case 's':
 					alwaysHelpText = !alwaysHelpText;
@@ -355,8 +396,11 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 		printhelp(alwaysHelpText);
-		if(currentArticle < 1) listNewsgroup(conn, currentNewsgroup, currentArticle);
-		else listArt(conn, currentNewsgroup, currentArticle);
+		if(currentArticle < 1) listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
+		else { 
+			listArt(conn, currentNewsgroup, currentTitel, currentArticle);
+			getArticle(conn, currentNewsgroup, currentArticle);
+		}
 
 	}
 }
