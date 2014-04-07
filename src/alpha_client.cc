@@ -170,14 +170,14 @@ void listNewsgroup(const Connection& conn, const int currentNewsgroup, string& c
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\n(0) -Create new newsgruop" << endl;
 	cout << line() << endl;
-	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << endl;
+	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << ", type (l) to list articles" << endl;
 }
 
 void createNewsgroup(const Connection& conn){
 	cout << "\nTitle for new Newsgroup?: " << endl;
 	conn.write(Protocol::COM_CREATE_NG);
 	string title;
-	std::getline (std::cin,title);
+	getline (cin,title);
 	writeString(conn, title); 
 	conn.write(Protocol::COM_END);
 	if(conn.read() !=Protocol::ANS_CREATE_NG) throw InvalidProtocolException(); //check correctness
@@ -210,20 +210,26 @@ void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel
 	switch (ans){
 		case Protocol::ANS_ACK:
 		{
-			printhelp(true);
+			cout << "Articels in newsgroup: " << currentNewsgroup << ", " << currentTitel << endl;
 			numbOf = readInt(conn);
 			if(numbOf == 0){
 				cout << "No articles exist" << endl;
 				currentArticle = -1;
 			}
 			int index;
+			string titel;
 			for(int i = 0; i < numbOf; ++i){
 				index = readInt(conn);
+				if(index == currentArticle) cout << "[";
 				cout << "(" << index << ")" << ": ";
-				cout << readString(conn);
+				titel = readString(conn);
+				cout << titel;
+				if(index == currentArticle){
+					cout << "]";
+				}
 				cout << endl;
 			}
-			if(numbOf > 0) cout << "\n type n to list newsgroups again" << endl;
+			if(numbOf > 0) cout << "\nSelect number to read or type a command" << endl;
 		}
 		break;
 		case Protocol::ANS_NAK: 
@@ -232,12 +238,7 @@ void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel
 		break;
 	} 
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
-	if(currentArticle < 0) {
-		cout << "\npress enter to continue";
-		cin.ignore(10000,'\n');
-		printhelp(true);
-		listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);			
-	}
+	
 }
 
 void helperDelite(const Connection& conn, const int currentNewsgroup){
@@ -282,10 +283,82 @@ void deliteNewsgroup(const Connection& conn, int& currentNewsgroup){
 	}
 }
 void getArticle(const Connection& conn, const int currentNewsgroup, const int currentArticle){
-
+	conn.write(Protocol::COM_GET_ART);
+	writeInt(conn, currentNewsgroup);
+	writeInt(conn, currentArticle);
+	conn.write(Protocol::COM_END);
+	if(conn.read() !=Protocol::ANS_GET_ART) throw InvalidProtocolException(); //check correctness
+	char ans = conn.read();
+	cout << vertspce() << endl;
+	switch(ans){
+		case Protocol::ANS_ACK:
+			cout << readString(conn) << endl; 
+			cout << readString(conn) << endl;
+			cout << readString(conn) << endl;
+		break;
+		case Protocol::ANS_NAK:
+			ans = conn.read();
+			if(ans == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup: " << currentNewsgroup << "does not exist" << endl;
+			if(ans == Protocol::ERR_ART_DOES_NOT_EXIST) cout << "Articel " << currentArticle << "does not exist" << endl;
+		break;
+	}
+	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	cout << "\npress enter to continue";
+	cin.ignore(10000,'\n');
+}
+void helperRemove(const Connection& conn, const int currentNewsgroup, const int currentArticle){
+	conn.write(Protocol::COM_DELETE_ART);
+	writeInt(conn, currentNewsgroup); 
+	writeInt(conn, currentArticle); 
+	conn.write(Protocol::COM_END);
+	if(conn.read() !=Protocol::ANS_DELETE_ART) throw InvalidProtocolException(); //check correctness
+	char ans = conn.read();
+	switch(ans){
+		case Protocol::ANS_NAK:
+		 	ans = conn.read();
+			if(ans == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup: " << currentNewsgroup << "does not exist" << endl;
+			if(ans == Protocol::ERR_ART_DOES_NOT_EXIST) cout << "Articel " << currentArticle << "does not exist" << endl;break;
+		case Protocol::ANS_ACK: cout << "Articel removed!" << endl;
+		break;
+	}
+	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	cout << "\npress enter to continue";
+	cin.ignore(10000,'\n');
 }
 
-void removeArt(const Connection& conn, const int currentNewsgroup, const string& currentTitel, const int currentArticle){
+void removeArt(const Connection& conn, int& currentNewsgroup, int& currentArticle){
+	if(currentNewsgroup < 1){ 
+		cout << "Newsgroup to remove Articel from? ";
+		cin >> currentNewsgroup;
+		cin.ignore(10000,'\n');
+	}
+	if(currentArticle < 1){ 
+		cout << "Articel to remove?";
+		cin >> currentArticle;
+		cin.ignore(10000,'\n');
+	}
+	bool delite = true;
+	char ans;
+	while(delite){
+		if(currentArticle > 0){
+			cout << "Delite artcel ID: " << currentArticle << "?  (y)es / (n)o / (o)therID" << endl;
+			cin >> ans;
+			cin.ignore(10000,'\n');
+			cin.clear();
+			switch (ans){
+				case 'y': helperRemove(conn, currentNewsgroup, currentArticle);
+				currentArticle = 0;
+				return;
+				case 'n': return;
+				case 'o': break;
+				default: return;
+			}
+		}
+		cout << "ID to delite? ";
+		cin >> currentArticle;
+		if(currentArticle < 0) delite = false;
+	}
+
 
 }
 
@@ -299,14 +372,20 @@ void createArt(const Connection& conn, int& currentNewsgroup){
 	writeInt(conn, currentNewsgroup);
 	cout << "\nTitle for new article: ";
 	string in;
-	std::getline (std::cin,in);
+	getline (cin,in);
 	writeString(conn, in); 
 	cout << "\nAuther: ";
-	std::getline (std::cin,in);
+	getline (cin,in);
 	writeString(conn, in); 
-	cout << "\nText: " << endl;
-	std::getline (std::cin,in);
-	writeString(conn, in); 
+	cout << "\nText (end input with blank newline): " << endl;
+	getline (cin,in);
+	string result = in;
+	while (in.length() != 0)
+	{
+		getline(cin, in);
+	    result = result + " " + in;
+	}
+	writeString(conn, result); 
 	conn.write(Protocol::COM_END);
 	if(conn.read() !=Protocol::ANS_CREATE_ART) throw InvalidProtocolException(); //check correctness
 	char ans = conn.read();
@@ -321,7 +400,7 @@ void createArt(const Connection& conn, int& currentNewsgroup){
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
 }
-
+/* TODO */
 void printExtednHelp(){
 	printhelp(true);
 }
@@ -344,29 +423,36 @@ int main(int argc, char* argv[]) {
 			switch (inCom[0]){
 				case 'h': printhelp(true);
 					continue;
-				case '0': 
-					createNewsgroup(conn);
-					printhelp(alwaysHelpText);
-					listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
-					continue;
 				case 'H': printExtednHelp();
 					continue;
+				case '0': 
+					createNewsgroup(conn);
 				case 'n': 
-				printhelp(alwaysHelpText);
-				listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
-					continue;
-				case 'd': deliteNewsgroup(conn, currentNewsgroup);
 					printhelp(alwaysHelpText);
 					listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
-				case 'l': 
-					listArt(conn, currentNewsgroup, currentTitel, currentArticle);	
+				case 'd': 
+					deliteNewsgroup(conn, currentNewsgroup);
+					printhelp(alwaysHelpText);
+					listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
 				case 'c': 
-					listArt(conn, currentNewsgroup, currentTitel, currentArticle);
+					cout << vertspce() << endl;
 					createArt(conn, currentNewsgroup);
+					printhelp(alwaysHelpText);
+					listArt(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
-				case 'r': removeArt(conn, currentNewsgroup, currentTitel, currentArticle);
+				case 'r': 
+					removeArt(conn, currentNewsgroup, currentArticle);
+				case 'l':
+					printhelp(alwaysHelpText); 
+					listArt(conn, currentNewsgroup, currentTitel, currentArticle);
+					if(currentArticle < 0) {
+						cout << "\npress enter to continue";
+						cin.ignore(10000,'\n');
+						printhelp(alwaysHelpText);
+						listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);			
+					}	
 					continue;
 				case 's':
 					alwaysHelpText = !alwaysHelpText;
@@ -400,6 +486,9 @@ int main(int argc, char* argv[]) {
 		else { 
 			listArt(conn, currentNewsgroup, currentTitel, currentArticle);
 			getArticle(conn, currentNewsgroup, currentArticle);
+			printhelp(alwaysHelpText);
+			listArt(conn, currentNewsgroup, currentTitel, currentArticle);
+			
 		}
 
 	}
