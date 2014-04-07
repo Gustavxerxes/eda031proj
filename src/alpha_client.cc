@@ -21,7 +21,7 @@ string line(int count){
 }
 
 string line(){
-	return line(40);
+	return line(60);
 }
 string vertspce(int count){
 	string s ="";
@@ -105,7 +105,6 @@ Connection connect(int argc, char* argv[]){
 		cerr << "Connection attempt failed" << endl;
 		exit(1);
 	}
-	if(conn.isConnected()) cout << "conneted!" << endl;
 return conn;
 
 }
@@ -124,7 +123,7 @@ void printhelp(bool b){
 	cout << "Navigate in list by the number in the list\n" 
 	<< "or use one of the following commands \n" << endl;
 	
-	cout << "(h) -This helptext and list of commands" << endl;
+	cout << "(h) -Print this list of commands" << endl;
 	cout << "(H) -Extended help text" << endl;
 	cout << "(n) -List newsgroups" << endl;
 	cout << "(d) -Delite newsgroups" << endl;	
@@ -157,12 +156,12 @@ void listNewsgroup(const Connection& conn, const int currentNewsgroup, string& c
 	string titel;
 	for(int i = 0; i < numbOf; ++i){
 		index = readInt(conn);
-		if(index == currentNewsgroup) cout << "[";
+		if(index == currentNewsgroup) cout << "[ ";
 		cout << "(" << index << ")" << ": ";
 		titel = readString(conn);
 		cout << titel;
 		if(index == currentNewsgroup){
-			cout << "]";
+			cout << " ] ";
 			currentTitel = titel;
 		}
 		cout << endl;
@@ -170,7 +169,8 @@ void listNewsgroup(const Connection& conn, const int currentNewsgroup, string& c
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\n(0) -Create new newsgruop" << endl;
 	cout << line() << endl;
-	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << ", type (l) to list articles" << endl;
+	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << ", type a command like (l)ist to list articles" << endl;
+	else cout << "Select Newsgroup with number or type a command from list" << endl;
 }
 
 void createNewsgroup(const Connection& conn){
@@ -210,7 +210,7 @@ void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel
 	switch (ans){
 		case Protocol::ANS_ACK:
 		{
-			cout << "Articels in newsgroup: " << currentNewsgroup << ", " << currentTitel << endl;
+			cout << "Articels in newsgroup " << currentNewsgroup << ", " << currentTitel << ":" << endl;
 			numbOf = readInt(conn);
 			if(numbOf == 0){
 				cout << "No articles exist" << endl;
@@ -220,16 +220,19 @@ void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel
 			string titel;
 			for(int i = 0; i < numbOf; ++i){
 				index = readInt(conn);
-				if(index == currentArticle) cout << "[";
+				if(index == currentArticle) cout << "[ ";
 				cout << "(" << index << ")" << ": ";
 				titel = readString(conn);
 				cout << titel;
 				if(index == currentArticle){
-					cout << "]";
+					cout << " ]";
 				}
 				cout << endl;
 			}
-			if(numbOf > 0) cout << "\nSelect number to read or type a command" << endl;
+			cout << "\n(n) -List newsgruops" << endl;
+			cout << line() << endl;
+	
+			if(numbOf > 0) cout << "Select number to read or type a command from list" << endl;
 		}
 		break;
 		case Protocol::ANS_NAK: 
@@ -414,6 +417,8 @@ int main(int argc, char* argv[]) {
 	string inCom;
 	Connection conn = connect(argc, argv); //connetion skapas här
 	printwelcome(argv);
+	cout << "\npress enter to continue";
+	cin.ignore(10000,'\n');
 	printhelp(alwaysHelpText);
 	listNewsgroup(conn, currentNewsgroup, currentTitel, currentArticle);
 	while (cin >> inCom) {
