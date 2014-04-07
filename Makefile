@@ -17,17 +17,18 @@ LDFLAGS =   -g
 # CPPFLAGS =  -stdlib=libc++
 # CXXFLAGS += -stdlib=libc++
 # LDFLAGS += -stdlib=libc++
+SRC_DIR = src
+OBJ_DIR = bin
 
-SOURCE_DIR = src
-OBJECT_DIR = build
-SOURCE_FILES = $(SOURCE_DIR)/%.cc
-OBJECT_FILES = $(OBJECT_DIR)/%.o
+TARGETS = zerver alpha_client
+SRCS	= $(SOURCE_DIR)/%.cc
+OBJS 	= server.o connection.o frontend.o backend.o newsgroup.o
 
 
-all: 
+all: $(TARGETS)
 
-$(OBJECT_FILES) : $(OBJECT_DIR)/%.o $(SOURCE_DIR)/%.cc
-	$(CXX) $()
+$(TARGETS): $(OBJS)
+	$(CXX) -c -o $(OBJ_DIR)/
 
 # Phony targets
 .PHONY: all clean
