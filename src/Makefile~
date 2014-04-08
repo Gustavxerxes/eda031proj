@@ -1,0 +1,48 @@
+#Makefile for cpp_proj eda031
+# Define the compiler and the linker. The linker must be defined since
+# the implicit rule for linking uses CC as the linker. g++ can be
+# changed to clang++.
+CXX = g++
+CC  = g++
+
+# Configuracion de C++
+CPPFLAGS =  -std=c++11
+CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast 
+CXXFLAGS += -std=c++11 
+CXXFLAGS += -g
+LDFLAGS =   -g
+
+# Variables
+#TARGET programet
+PROGS1 = zerver
+PROG2 = client
+DIR_SRC  = ../src/
+DIR_HELP = ../help/
+DIR_OBJ  = ../obj/
+DIR_BIN  = ../bin/
+
+PROGS = zerver client
+
+all: $(PROGS)
+
+zerver: zerver.o connection.o newsgroup.o server.o frontend.o backend.o
+client: alpha_client.o connection.o
+
+# Phony targets
+.PHONY: all clean
+
+# Standard clean
+clean:
+	rm -f *.o $(DIR_OBJ)/$(PROGS)
+
+# Generate dependencies in *.d files
+%.d: %.cc
+	@set -e; rm -f $(DIR_OBJ)$@; \
+         $(CPP) -MM $(CPPFLAGS) $< > $(DIR_OBJ)$@.$$$$; \
+         sed 's,\($*\)\.o[ :]*,\1.o $(DIR_OBJ)$@ : ,g' < $(DIR_OBJ)$@.$$$$ > $(DIR_OBJ)$@; \
+         rm -f $(DIR_OBJ)$@.$$$$
+
+# Include the *.d files
+SRC = $(wildcard *.cc)
+include $(SRC:.cc=.d)
+	rm -Rf $(DIR_OBJ)*.o $(DIR_BIN)$(PROGS)
