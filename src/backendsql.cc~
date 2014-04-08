@@ -57,7 +57,7 @@ bool BackEnd::ngExists(int ngId){
 
 	PreparedStatement *stmt;
 	ResultSet *res;
-	stmt = con->prepareStatement("select * from NewsGroup where NgId = ?");
+	stmt = con->prepareStatement("select NgId from NewsGroup where NgId = ?");
 	stmt->setInt(1,ngId);
 	res = stmt->executeQuery();
 	if(res->next()){
@@ -86,7 +86,6 @@ void BackEnd::listNG(std::vector<std::pair<int, std::string> >& ngs){
 }
 
 bool BackEnd::addNG(const std::string& name){
-
 	ResultSet *res;
 	PreparedStatement *stmt = con->prepareStatement("select title from NewsGroup where title = ?");
 	stmt->setString(1,name);
@@ -107,14 +106,10 @@ bool BackEnd::addNG(const std::string& name){
 
 bool BackEnd::removeNG(const int id){
 	PreparedStatement *stmt;
-	stmt = con->prepareStatement("delete from Article where ngId = ? ");
-	stmt->setInt(1,id);
-	stmt->executeUpdate();
-	delete stmt;
 	stmt = con->prepareStatement("delete from NewsGroup where NgId = ?");
 	stmt->setInt(1,id);
-	
-	bool deleted = (0 != stmt->executeUpdate());
+	stmt->executeUpdate();
+	bool deleted = (0 == stmt->getUpdateCount());
 	delete stmt;
 	return deleted;
 }
@@ -130,12 +125,12 @@ bool BackEnd::listArticles(const int ngId, std::vector<std::pair<int, std::strin
 	PreparedStatement *stmt;
 	ResultSet *res;
 
-	stmt = con->prepareStatement("select artId,title from Article where NgId = ?");
+	stmt = con->prepareStatement("select Artid,Article.title from Article where NgId = ?");
 	stmt->setInt(1, ngId);
 	res = stmt->executeQuery();
 
 	while(res->next()){
-		arts.push_back(make_pair(res->getInt("artId"), res->getString("title")));
+		arts.push_back(make_pair(res->getInt("ArtId"), res->getString("Article.title")));
 	}
 	delete res;
 	delete stmt;
@@ -173,32 +168,26 @@ bool BackEnd::addArticle(const int ngId, const std::string& title, const std::st
 	stmt->executeUpdate();
 	delete stmt;
 
-	stmt = con->prepareStatement("update NewsGroup set nextArtId = nextArtId+1 where ngId = ?");
+	stmt = con->prepareStatement("update NewsGroup set nextArtId = nextArtId+1 where NewsGroup = ?");
 	stmt->setInt(1, ngId);
 	stmt->executeUpdate();
+	delete res;
 	delete stmt;
 
 }
 
 unsigned char BackEnd::removeArticle(int ngId, int artId){
 
-	if(!ngExists(ngId)){
-		return ERR_NG;
-	}
-
 	PreparedStatement *stmt;
 	ResultSet *res;
 
-	stmt = con->prepareStatement("delete from Article where ngId = ? and ArtId = ?");
-	stmt->setInt(1,ngId);
-	stmt->setInt(2, artId);
+	stmt = con->prepareStatement("delete from Article where NgId = ? and ArtId = ?");
 
-	if(0 == stmt->executeUpdate()){
-		delete stmt;
-		return ERR_ART;
-	}
+	bool removedArt = (0 != stmt->getUpdateCount());
+	delete res;
 	delete stmt;
-	return NO_ERR;
+	
+	return removedArt;
 }
 
 unsigned char BackEnd::getArticle(const int ngId, const int artId, vector<string>& article) {

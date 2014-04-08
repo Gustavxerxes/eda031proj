@@ -14,19 +14,20 @@ LDFLAGS =   -g
 
 # Variables
 #TARGET programet
-PROGS1 = zerver
+PROGS1 = zerversql
 PROG2 = client
 DIR_SRC  = ../src/
 DIR_HELP = ../help/
 DIR_OBJ  = ../obj/
 DIR_BIN  = ../bin/
 
-PROGS = zerver client
+PROGS = zerver client zerversql
 
 all: $(PROGS)
 
 zerver: zerver.o connection.o newsgroup.o server.o frontend.o backend.o
 client: alpha_client.o connection.o
+zerversql: zerversql.o connection.o  server.o frontend.o backendsql.o
 
 # Phony targets
 .PHONY: all clean
