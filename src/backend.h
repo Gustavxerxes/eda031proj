@@ -1,4 +1,4 @@
-	#ifndef BACKEND_H
+#ifndef BACKEND_H
 #define BACKEND_H
 
 #include "newsgroup.h"
@@ -25,10 +25,6 @@ public:
 private:
 	std::map<int, NewsGroup> database;
 	int ng_count;
-
-
-
-
 };
 
 #endif
