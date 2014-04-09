@@ -25,12 +25,12 @@ OBJS_CLI= connection.o alpha_client.o
 all: zerver client
 
 # zerver compile and link
-zerver: $(OBJ_DIR)/$(OBJS_ZER)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+zerver: $(OBJS_ZER)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$^)
 
 # Client compile and link
-client: $(OBJ_DIR)/$(OBJS_CLI)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+client: $(OBJS_CLI)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$^)
 
 # Phony targets
 .PHONY: all clean
@@ -39,6 +39,6 @@ client: $(OBJ_DIR)/$(OBJS_CLI)
 clean:
 	rm -f $(OBJ_DIR)/* $(BIN_DIR)/*
 
-# Suffix rule
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
-	$(CXX) -c $(CXXFLAGS) -o $@ $^
+# Suffix rule for object files
+%.o: $(SRC_DIR)/%.cc
+	$(CXX) -c $(CXXFLAGS) -o $(OBJ_DIR)/$@ $^
