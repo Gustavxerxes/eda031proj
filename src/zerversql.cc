@@ -35,6 +35,7 @@ int main(int argc, char* argv[]){
 
  	BackEnd be = BackEnd();
 	FrontEnd fe(be);
+	cout << "Server started" << endl;
 
 	while (true) {
 		auto conn = server.waitForActivity();

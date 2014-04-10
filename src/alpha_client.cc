@@ -167,7 +167,7 @@ void listNewsgroup(const Connection& conn, int& currentNewsgroup, string& curren
 	int numbOf;
 	if(conn.read()!=Protocol::ANS_LIST_NG) throw InvalidProtocolException(); //check correctness
 	numbOf = readInt(conn);
-	if(numbOf == 0) cout << " No newsgroups exist" << endl;
+	if(numbOf == 0) cout << " No newsgroups exist yet" << endl;
 	int index;
 	bool exist = false;
 	string titel;
@@ -189,7 +189,8 @@ void listNewsgroup(const Connection& conn, int& currentNewsgroup, string& curren
 	cout << "\n(c) -Create new newsgruop" << endl;
 	cout << fixline << endl;
 	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << ", press enter to list articles or type a command from list" << endl;
-	else cout << "Select Newsgroup with number or type a command from list" << endl;
+	else if(numbOf > 0) cout << "Select Newsgroup with number or type a command from list" << endl;
+	else cout << "List is empty" << endl;
 }
 
 void createNewsgroup(const Connection& conn){
@@ -214,11 +215,15 @@ void createNewsgroup(const Connection& conn){
 }
 
 void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel, int& currentArticle){
-	if(currentArticle == -1) currentArticle = 0;
 	if(currentNewsgroup < 1){ 
 		cout << "Newsgroup to list? ";
 		cin >> currentNewsgroup;
 		cin.ignore(10000,'\n');
+		printhelp(true);
+	}else if(currentArticle <0){
+		currentArticle = 0;
+		printhelp(true);
+
 	}
 	conn.write(Protocol::COM_LIST_ART);
 	writeInt(conn, currentNewsgroup); 
@@ -231,10 +236,13 @@ void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel
 		{
 			cout << "Articels in newsgroup " << currentNewsgroup << ", " << currentTitel << ":\n" << endl;
 			numbOf = readInt(conn);
-			if(numbOf == 0){
-				cout << " No articles exist" << endl;
-				currentArticle = -2;
+			if(currentArticle < 1) {
+			cout << "[ (0) -Go back ]\n" << endl;
 			}else cout << "(0) -Go back\n" << endl;
+			if(numbOf == 0){
+				cout << " Newsgroup is empty..." << endl;
+				currentArticle = -2;
+			}
 			int index;
 			string titel;
 			for(int i = 0; i < numbOf; ++i){
@@ -252,7 +260,6 @@ void listArt(const Connection& conn, int& currentNewsgroup, string& currentTitel
 			cout << fixline << endl;
 	
 			if(numbOf > 0) cout << "Select number to read or type a command from list" << endl;
-			if(currentArticle < 1) cout << "press Enter to return" << endl;
 		}
 		break;
 		case Protocol::ANS_NAK: 
@@ -441,8 +448,7 @@ void createArt(const Connection& conn, int& currentNewsgroup){
 
 int main(int argc, char* argv[]) {
 	bool alwaysHelpText = true;
-	bool skipOneH = false;
- 	int currentNewsgroup = -1;
+	int currentNewsgroup = -1;
  	int currentArticle = -1;
  	string currentTitel = "";
 	string inCom;
@@ -477,7 +483,7 @@ int main(int argc, char* argv[]) {
 				case 'r': 
 					removeArt(conn, currentNewsgroup, currentArticle);
 				case 'l':
-					printhelp(alwaysHelpText); 
+					currentArticle = -1;
 					listArt(conn, currentNewsgroup, currentTitel, currentArticle);
 					continue;
 				case 's':

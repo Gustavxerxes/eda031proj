@@ -26,11 +26,11 @@ all: zerver client
 
 # zerver compile and link
 zerver: $(OBJS_ZER)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$^)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$?)
 
 # Client compile and link
 client: $(OBJS_CLI)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$^)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$?)
 
 # Phony targets
 .PHONY: all clean
@@ -41,4 +41,4 @@ clean:
 
 # Suffix rule for object files
 %.o: $(SRC_DIR)/%.cc
-	$(CXX) -c $(CXXFLAGS) -o $(OBJ_DIR)/$@ $^
+	$(CXX) -c $(CXXFLAGS) -o $(OBJ_DIR)/$@ $?
