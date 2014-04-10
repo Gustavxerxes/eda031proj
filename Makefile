@@ -10,7 +10,7 @@ CPPFLAGS =  -std=c++11
 CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast 
 CXXFLAGS += -std=c++11 
 CXXFLAGS += -g
-LDFLAGS =   -g
+LDFLAGS =   -g -L/usr/local/lib -L/usr/local/mysql/lib
 # CPPFLAGS =  -stdlib=libc++
 # CXXFLAGS += -stdlib=libc++
 # LDFLAGS += -stdlib=libc++
@@ -20,17 +20,24 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 OBJS_ZER= server.o connection.o frontend.o backend.o newsgroup.o zerver.o
+OBJS_SQL= server.o connection.o frontend.o backendsql.o zerver.o
 OBJS_CLI= connection.o alpha_client.o
 
-all: zerver client
+SQL_LIBS = -lmysqlcppconn
+
+all: zerver zerver-sql client
 
 # zerver compile and link
-zerver: $(OBJS_ZER)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$^)
+zerver: $(addprefix $(OBJ_DIR)/,$(OBJS_ZER))
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BIN_DIR)/$@ $?
+
+# zerver-sql compile and link
+zerver-sql: 
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) @(SQL_LIBS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$?)
 
 # Client compile and link
-client: $(OBJS_CLI)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$^)
+client: $(addprefix $(OBJ_DIR)/,$(OBJS_CLI))
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BIN_DIR)/$@ $?
 
 # Phony targets
 .PHONY: all clean
@@ -40,5 +47,5 @@ clean:
 	rm -f $(OBJ_DIR)/* $(BIN_DIR)/*
 
 # Suffix rule for object files
-%.o: $(SRC_DIR)/%.cc
-	$(CXX) -c $(CXXFLAGS) -o $(OBJ_DIR)/$@ $^
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
+	$(CXX) -c $(CXXFLAGS) -o $@ $?
