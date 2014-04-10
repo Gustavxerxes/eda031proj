@@ -1,12 +1,12 @@
-#include <vector>
-#include <string>
+#include "mysql_connection.h"
 #include "backendsql.h"
-#include <algorithm>
 //mysql c++ connector, see http://dev.mysql.com/doc/connector-cpp/en/ for more info on these includes
 //g++ -std=c++11  -I/usr/local/include -I/usr/local/boost/include zerversql.cc connection.cc  server.cc frontend.cc backendsql.cc 
 //-L/usr/local/lib -L/usr/local/mysql/lib  -o zerversql  -lmysqlcppconn -g
 
-#include "mysql_connection.h"
+#include <vector>
+#include <string>
+#include <algorithm>
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>

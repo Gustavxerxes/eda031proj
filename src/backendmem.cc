@@ -1,23 +1,22 @@
+#include "backendmem.h"
+#include "article.h"
+#include "newsgroup.h"
+
 #include <map>
 #include <vector>
 #include <string>
-#include "backend.h"
-#include "article.h"
-#include "newsgroup.h"
 #include <algorithm>
-
 
 using namespace std;
 
-
-void BackEnd::listNG(std::vector<std::pair<int, std::string>>& ngs){
+void BackEndMem::listNG(std::vector<std::pair<int, std::string>>& ngs){
 	
 	for(auto it = database.begin() ; it != database.end() ; ++it){
 		ngs.push_back(make_pair(it->first, it->second.getTitle()));
 	}
 }
 
-bool BackEnd::addNG(const std::string& name){
+bool BackEndMem::addNG(const std::string& name){
 	++ng_count;
 	for (auto it = database.begin(); it != database.end(); ++it ) {
 		if (it->second.getTitle() == name) return false;
@@ -26,7 +25,7 @@ bool BackEnd::addNG(const std::string& name){
 	return true; 
 }
 
-bool BackEnd::removeNG(const int id){
+bool BackEndMem::removeNG(const int id){
 	auto ng = database.find(id);
 	if (ng == database.end()) return false;
 	database.erase(ng);
@@ -34,7 +33,7 @@ bool BackEnd::removeNG(const int id){
 }
 
 
-bool BackEnd::listArticles(const int ngId, std::vector<std::pair<int, std::string>>& arts){
+bool BackEndMem::listArticles(const int ngId, std::vector<std::pair<int, std::string>>& arts){
 	auto it = database.find(ngId);
 	if (it != database.end()) {
 		return (it->second).listArticles(arts);
@@ -43,7 +42,7 @@ bool BackEnd::listArticles(const int ngId, std::vector<std::pair<int, std::strin
 	}
 }
 
-bool BackEnd::addArticle(const int ngId, const std::string& title, const std::string& author, const std::string& textbody){
+bool BackEndMem::addArticle(const int ngId, const std::string& title, const std::string& author, const std::string& textbody){
 	auto it = database.find(ngId);
 	if (it != database.end()) {
 		(it->second).addArticle(title,author,textbody);
@@ -53,7 +52,7 @@ bool BackEnd::addArticle(const int ngId, const std::string& title, const std::st
 	}
 }
 
-unsigned char BackEnd::removeArticle(int ngId, int artId){
+unsigned char BackEndMem::removeArticle(int ngId, int artId){
 	auto it = database.find(ngId);
 	if (it != database.end()) {
 		if ((it->second).removeArticle(artId)) return NO_ERR;
@@ -63,7 +62,7 @@ unsigned char BackEnd::removeArticle(int ngId, int artId){
 	}
 }
 
-unsigned char BackEnd::getArticle(const int ngId, const int artId, vector<string>& article) {
+unsigned char BackEndMem::getArticle(const int ngId, const int artId, vector<string>& article) {
 	auto it = database.find(ngId);
 	if (it != database.end()) {
 		Article a;

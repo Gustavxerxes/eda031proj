@@ -1,32 +1,32 @@
+/*
+ * Class with static methods for low-level protocol handling
+ *
+ * Author: NH
+ */
+
 #ifndef MESSAGEHANDLER_H
 #define MESSAGEHANDLER_H
 
 #include <string>
+#include <memory>
+
 #include "connection.h"
 #include "protocol.h"
 
-class Messagehandler {
-
+class MessageHandler {
 public: 
-
-	Messagehandler(const Connection connIn): conn = connIn {};
-	void writeInt(const int value);
-
-	void writeString(const string& s);
-
-	void wrriteCode(const unsigned char code);
-
-	int readInt();
-
-	string readString();
+	static void writeInt(const std::shared_ptr<Connection>& conn, const int value);
+	static void writeString(const std::shared_ptr<Connection>& conn, const std::string& s);
+	static void writeCode(const std::shared_ptr<Connection>& conn, const unsigned char code);
+	static int readInt(const std::shared_ptr<Connection>& conn);
+	static std::string readString(const std::shared_ptr<Connection>& conn);
+	static unsigned char readByte(const std::shared_ptr<Connection>& conn);
 
 private:
-
-	int helperRead();
-
-	void helperWrite(int value);
-
 	Connection conn;
 
+	int helperRead();
+	void helperWrite(int value);
 };
+
 #endif
