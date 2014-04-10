@@ -18,10 +18,11 @@ void BackEnd::listNG(std::vector<std::pair<int, std::string>>& ngs){
 }
 
 bool BackEnd::addNG(const std::string& name){
+	++ng_count;
 	for (auto it = database.begin(); it != database.end(); ++it ) {
 		if (it->second.getTitle() == name) return false;
 	}
-	database.emplace(++ng_count, NewsGroup(ng_count, name));
+	database.emplace(ng_count, NewsGroup(ng_count, name));
 	return true; 
 }
 

@@ -1,4 +1,4 @@
-#include "frontendsql.h"
+#include "frontend.h"
 #include "backendsql.h"
 #include "server.h"
 #include "connection.h"
@@ -35,6 +35,7 @@ int main(int argc, char* argv[]){
 
  	BackEnd be = BackEnd();
 	FrontEnd fe(be);
+	cout << "Server started" << endl;
 
 	while (true) {
 		auto conn = server.waitForActivity();
