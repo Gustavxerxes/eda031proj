@@ -19,9 +19,7 @@ private:
 
 	sql::Driver *driver;
 	sql::Connection *con;
-	bool connectedFlag;
-	sql::Statement *stmt;
-	sql::ResultSet *res;
-};
+	bool connectedFlag
+;};
 
 #endif
