@@ -1,4 +1,5 @@
 #include "frontend.h"
+#include "backendmem.h"
 #include "backend.h"
 #include "server.h"
 #include "connection.h"
@@ -33,8 +34,8 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
- 	BackEnd be = BackEnd();
-	FrontEnd fe(be);
+ 	BackEndMem be = BackEndMem();
+	FrontEnd fe(&be);
 	cout << "Server started" << endl;
 	while (true) {
 		auto conn = server.waitForActivity();

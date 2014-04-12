@@ -1,4 +1,5 @@
 #include "frontend.h"
+#include "backend.h"
 #include "backendsql.h"
 #include "server.h"
 #include "connection.h"
