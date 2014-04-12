@@ -1,6 +1,8 @@
 #include "mysql_connection.h"
 #include "backendsql.h"
-//mysql c++ connector, see http://dev.mysql.com/doc/connector-cpp/en/ for more info on these includes
+//mysql c++ connector, see http://dev.mysql.com/doc/connector-cpp/en/connector-cpp-installation-source.html for more info on these includes
+
+//build commands:
 //g++ -std=c++11  -I/usr/local/include -I/usr/local/boost/include zerversql.cc connection.cc  server.cc frontend.cc backendsql.cc 
 //-L/usr/local/lib -L/usr/local/mysql/lib  -o zerversql  -lmysqlcppconn -g
 
