@@ -1,9 +1,47 @@
-CPP A News System Implementation
 ---------------------------------------
-Writen by Viktor, Niklas and Martin.
+CPP - A News System Implementation
+---------------------------------------
+Written by Viktor, Niklas and Martin.
 
-This directory includes a makefile and a src directory with all the source files. 
-To make the exudebles zerver, zerver-spl and client run the make file.
+
+Dependencies and prerequisites
+----------------------------------
+The system is tested on ubuntu 12.04 and later. The non-volatile version of the server is uses the Oracle MySQL C++ connector. If the connector isn’t already installed on your system run this in the terminal on an ubuntu machine in order to install it:
+sudo apt-get install mysql-client libmysqlclient-dev libmysqlcppconn-dev
+
+
+
+How to build
+----------------------------------
+The main directory includes a makefile and a src directory with all the source files.
+To make the executables zerver, zerver-sql and client simply run the makefile.
+
+How to run
+----------------------------------
+Once the programs are buildt, there should be 3 executable files in the bin folder, these are:
+
+zerver
+------------
+This is the volatile version of the newsgroup server. Once the program is shut down, all created content will be lost. The syntax to start the server is:
+
+./zerver <portnumber>
+
+
+zerver-sql
+------------
+This version of the newsgroup server saves and loads data to a SQL database. In order for the server to work the database must first be created, this is done using databaseSetup.sql script-file included in the main directory. Once the database is initialized the server is started using the syntax:
+
+./zerver-sql <portnumber> <username> <password> <url> <database>
+
+
+client
+-----------
+    The client interfaces the user with the newsgroup server
+It is self explaining and presents a helpful text on startup
+The syntax to start the server is:
+
+./client <url> <portnumber>
+
 
 
 

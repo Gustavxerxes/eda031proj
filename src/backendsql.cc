@@ -1,3 +1,18 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//						Backend sql class 
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Apr 10, 2014	NH	Initial version
+//
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #include "mysql_connection.h"
 #include "backendsql.h"
 //mysql c++ connector, see http://dev.mysql.com/doc/connector-cpp/en/connector-cpp-installation-source.html for more info on these includes

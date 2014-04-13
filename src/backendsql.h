@@ -1,3 +1,18 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//					Backend sql class header
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Apr 10, 2014	NH	Initial version
+//
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #ifndef BACKENDSQL_H
 #define BACKENDSQL_H
 #include <string>

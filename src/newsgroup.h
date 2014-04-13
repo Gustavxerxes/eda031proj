@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//				Newsgroup class for inmemory database
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Mar 24, 2014	VN	Initial version
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #ifndef NEWSGROUP_H
 #define NEWSGROUP_H
 

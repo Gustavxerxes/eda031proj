@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//							News System	server	
+//								Server 
+//
+//			Written by Viktor, Martin and Niklas
+//	run with: ./zerver-sql <port> <user> <password> <sql-url> <database>
+//
+// Change log
+//	Apr 08, 2014	ML	Initial version
+//
+//
+// ------------------------------------------------------------------
+
 #include "frontend.h"
 #include "backend.h"
 #include "backendsql.h"

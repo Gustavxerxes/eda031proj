@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//						BackEnd interface 
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Mar 21, 2014	ML	Initial version
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #ifndef BACKEND_H
 #define BACKEND_H
 #include <string>

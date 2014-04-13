@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//				FRONTEND for handling the special Protocol 
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Mar 26, 2014	NH	Initial version
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #ifndef FRONTEND_H
 #define FRONTEND_H
 

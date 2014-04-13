@@ -1,3 +1,15 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//							Article class 
+//
+//			Written by Viktor, Martin and Niklas
+// Change log
+//	Mar 21, 2014	VN	Initial version
+//
+//
+// ------------------------------------------------------------------
+
 #ifndef ARTICLE_H
 #define ARTICLE_H
 

@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//				Messagehandler for low level communication 
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Apr 10, 2014	VN HN	Initial version
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #include <string>
 #include <memory>
 

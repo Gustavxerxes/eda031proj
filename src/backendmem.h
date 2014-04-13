@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//						News System Server
+//					Backend memory class header
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Apr 10, 2014	NH	Initial version
+//	
+//
+//
+// ------------------------------------------------------------------
+
 #ifndef BACKENDMEM_H
 #define BACKENDMEM_H
 

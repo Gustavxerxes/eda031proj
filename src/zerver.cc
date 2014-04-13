@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------
+//
+//							News System	server	
+//								Server 
+//
+//			Written by Viktor, Martin and Niklas
+//	run with: ./zerver <port>
+//
+// Change log
+//	Mar 21, 2014	HN	Initial version
+//
+//
+// ------------------------------------------------------------------
+
 #include "frontend.h"
 #include "backendmem.h"
 #include "backend.h"

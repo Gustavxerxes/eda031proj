@@ -1,10 +1,14 @@
 // ------------------------------------------------------------------
 //
-//						Newsgroup client 
+//							News System	server	
+//								client 
 //
 //			Written by Viktor, Martin and Niklas
+//	run with: ./client <url> <port>
 //
-//	
+// Change log
+//	Apr 06, 2014	VN	Initial version
+//	Apr 13, 2014	VN  Renamed from alpha_client to our_client
 //
 //
 // ------------------------------------------------------------------

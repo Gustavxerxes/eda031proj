@@ -1,8 +1,16 @@
-/*
- * Class with static methods for low-level protocol handling
- *
- * Author: NH
- */
+// ------------------------------------------------------------------
+//
+//						News System Server
+//			Messagehandler header for low level communication
+//
+//			Written by Viktor, Martin and Niklas
+//
+// Change log
+//	Apr 10, 2014	VN HN	Initial version
+//	
+//
+//
+// ------------------------------------------------------------------
 
 #ifndef MESSAGEHANDLER_H
 #define MESSAGEHANDLER_H
