@@ -15,8 +15,8 @@
 using namespace std;
 
 int main(int argc, char* argv[]){
-	if (argc != 2) {
-		cerr << "Usage: zerver port-number" << endl;
+	if (argc != 6) {
+		cerr << "Usage: zerver <port-number> <sql-user> <sql password> <sql-url> <sql-database>" << endl;
 		exit(1);
 	}
 	
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
- 	BackEndSql be = BackEndSql();
+ 	BackEndSql be = BackEndSql(argv[2], argv[3], argv[4], argv[5]);
 	FrontEnd fe(&be);
 	cout << "Server started" << endl;
 

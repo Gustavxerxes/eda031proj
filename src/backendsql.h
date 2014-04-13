@@ -12,7 +12,7 @@
 
 class BackEndSql : public BackEnd {
 public:	
-	BackEndSql();
+	BackEndSql(const std::string user, const std::string pw, const std::string url, const std::string db);
 	~BackEndSql();
 	void listNG(std::vector<std::pair<int, std::string> >& ngs);
 	bool addNG(const std::string& name);
@@ -23,7 +23,7 @@ public:
 	unsigned char getArticle(const int ngId, const int artId, std::vector<std::string>& article);
 
 private:
-	void connect();
+	void connect(const std::string user, const std::string pw, const std::string url, const std::string db);
 	void disconnect();
 	bool ngExists(int ngId);
 

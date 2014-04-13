@@ -19,11 +19,11 @@
 using namespace std;
 using namespace sql;
 
-BackEndSql::BackEndSql(){
+BackEndSql::BackEndSql(string user, string pw, string url, string db){
 
 	driver = get_driver_instance();
 	connectedFlag = false;
-	connect();
+	connect(user, pw, url, db);
 }
 
 
@@ -31,10 +31,10 @@ BackEndSql::~BackEndSql(){
 	disconnect();
 }
 
-void BackEndSql::connect(){
+void BackEndSql::connect(string user, string pw, string url, string db){
 	try{
-		con = driver->connect("puccini.cs.lth.se", "db06", "kodord");
-		con->setSchema("db06");
+		con = driver->connect(url, user, pw);
+		con->setSchema(db);
 		connectedFlag = true;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
