@@ -29,18 +29,20 @@ BackEndSql::BackEndSql(){
 
 BackEndSql::~BackEndSql(){
 	disconnect();
+
+
 }
 
 void BackEndSql::connect(){
 	try{
-		con = driver->connect("puccini.cs.lth.se", "db06", "kodord");
+		con = driver->connect("puccini.cs.lth.se", "db06", "kodord2");
 		con->setSchema("db06");
 		connectedFlag = true;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-	}
+}
 }
 
 
@@ -59,20 +61,21 @@ bool BackEndSql::ngExists(int ngId){
 		stmt = con->prepareStatement("select * from NewsGroup where NgId = ?");
 		stmt->setInt(1,ngId);
 		res = stmt->executeQuery();
-		if(res->next()){
-			delete res;
-			delete stmt;
-			return true;
-		}
-		delete res;
-		delete stmt;
-		return false;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		return false;
-	}
+
+}
+if(res->next()){
+	delete res;
+	delete stmt;
+	return true;
+}
+delete res;
+delete stmt;
+return false;
+
 }
 
 void BackEndSql::listNG(std::vector<std::pair<int, std::string> >& ngs){
@@ -80,26 +83,27 @@ void BackEndSql::listNG(std::vector<std::pair<int, std::string> >& ngs){
 
 
 	PreparedStatement *stmt; 
-	ResultSet *res;
+	Resultset *res;
 	try{
 		stmt = con->prepareStatement("select NgID, title from newsgroup");	
 		res = stmt->executeQuery();
-		while(res->next()){
-			ngs.push_back(make_pair(res->getInt("NgID"), res->getString("title")));
-		}
-		delete res;
-		delete stmt;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-	}
+}
+
+while(res->next()){
+	ngs.push_back(make_pair(res->getInt("NgID"), res->getString("title")));
+}
+delete res;
+delete stmt;
 }
 
 bool BackEndSql::addNG(const std::string& name){
 
 	ResultSet *res;
-	PreparedStatement *stmt;
+	PreparedStatement *stmt 
 
 	try{
 		stmt = con->prepareStatement("select title from NewsGroup where title = ?");
@@ -117,18 +121,17 @@ bool BackEndSql::addNG(const std::string& name){
 		stmt->setString(1, name);
 		stmt->executeUpdate();
 		delete stmt;
-		return true;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		return false;
-	}
+}
+}
+
 }
 
 bool BackEndSql::removeNG(const int id){
 	PreparedStatement *stmt;
-	bool deleted;
 	try{
 		stmt = con->prepareStatement("delete from Article where ngId = ? ");
 		stmt->setInt(1,id);
@@ -137,16 +140,14 @@ bool BackEndSql::removeNG(const int id){
 		stmt = con->prepareStatement("delete from NewsGroup where NgId = ?");
 		stmt->setInt(1,id);
 
-		deleted = (0 != stmt->executeUpdate());
-		delete stmt;
-
+		bool deleted = (0 != stmt->executeUpdate());
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		deleted = false;
-	}
-	return deleted;
+}
+delete stmt;
+return deleted;
 }
 
 
@@ -163,18 +164,17 @@ bool BackEndSql::listArticles(const int ngId, std::vector<std::pair<int, std::st
 		stmt = con->prepareStatement("select artId,title from Article where NgId = ?");
 		stmt->setInt(1, ngId);
 		res = stmt->executeQuery();
-		while(res->next()){
-			arts.push_back(make_pair(res->getInt("artId"), res->getString("title")));
-		}
-		delete res;
-		delete stmt;
 
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		return false;
-	}
+}
+while(res->next()){
+	arts.push_back(make_pair(res->getInt("artId"), res->getString("title")));
+}
+delete res;
+delete stmt;
 return true;
 }
 
@@ -194,9 +194,12 @@ bool BackEndSql::addArticle(const int ngId, const std::string& title, const std:
 			delete stmt;
 			return false;
 		}
+
 		int artnbr = res->getInt("nextArtId");
 		delete res;
 		delete stmt;
+
+
 
 		stmt = con->prepareStatement("insert into Article(ngId, ArtId, title, author, artText) values(?,?,?,?,?)");
 		stmt->setInt(1, ngId);
@@ -211,13 +214,11 @@ bool BackEndSql::addArticle(const int ngId, const std::string& title, const std:
 		stmt->setInt(1, ngId);
 		stmt->executeUpdate();
 		delete stmt;
-		return true;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		return false;
-	}
+}
 
 }
 
@@ -228,6 +229,7 @@ unsigned char BackEndSql::removeArticle(int ngId, int artId){
 	}
 
 	PreparedStatement *stmt;
+	ResultSet *res;
 	try{
 		stmt = con->prepareStatement("delete from Article where ngId = ? and ArtId = ?");
 		stmt->setInt(1,ngId);
@@ -237,15 +239,13 @@ unsigned char BackEndSql::removeArticle(int ngId, int artId){
 			delete stmt;
 			return ERR_ART;
 		}
-		delete stmt;
-		return NO_ERR;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		return ERR_NG;
-	}
-
+}
+delete stmt;
+return NO_ERR;
 }
 
 unsigned char BackEndSql::getArticle(const int ngId, const int artId, vector<string>& article) {
@@ -269,14 +269,14 @@ unsigned char BackEndSql::getArticle(const int ngId, const int artId, vector<str
 			delete stmt;
 			return NO_ERR;
 		}
-		delete res;
-		delete stmt;
-		return ERR_ART;
 	} catch(sql::SQLException &e){
 		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl
 		<< "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode()
 			<< ", SQLState: " << e.getSQLState() << " )" << endl;
-		return ERR_NG;
-	}
+}
 }
 
+delete res;
+delete stmt;
+return ERR_ART;
+}

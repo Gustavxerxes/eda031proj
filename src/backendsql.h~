@@ -29,7 +29,7 @@ private:
 
 	sql::Driver *driver;
 	sql::Connection *con;
-	bool connectedFlag;
-};
+	bool connectedFlag
+;};
 
 #endif

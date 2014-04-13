@@ -5,7 +5,7 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "invalidprotocolexception.h"
-
+#include "mysql_connection.h"
 #include <memory>
 #include <iostream>
 #include <string>
@@ -34,8 +34,8 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
- 	BackEnd be = BackEnd();
-	FrontEnd fe(be);
+ 	BackEndSql be = BackEndSql();
+	FrontEnd fe(&be);
 	cout << "Server started" << endl;
 
 	while (true) {

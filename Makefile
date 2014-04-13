@@ -21,7 +21,7 @@ BIN_DIR = bin
 SQL_LIBS = -lmysqlcppconn
 
 OBJS_ZER= server.o connection.o frontend.o backendmem.o newsgroup.o zerver.o messagehandler.o
-OBJS_SQL= server.o connection.o frontend.o backendsql.o zerver.o 
+OBJS_SQL= server.o connection.o frontend.o backendsql.o zerversql.o messagehandler.o
 OBJS_CLI= connection.o our_client.o messagehandler.o
 
 all: prep zerver zerver-sql client 
@@ -32,7 +32,7 @@ zerver: $(addprefix $(OBJ_DIR)/,$(OBJS_ZER))
 
 # zerver-sql compile and link
 zerver-sql: $(addprefix $(OBJ_DIR)/,$(OBJS_SQL))
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) @(SQL_LIBS) -o $(BIN_DIR)/$@ $(addprefix $(OBJ_DIR)/,$?)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BIN_DIR)/$@ $? $(SQL_LIBS) 
 
 # Client compile and link
 client: $(addprefix $(OBJ_DIR)/,$(OBJS_CLI))
