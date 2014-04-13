@@ -24,7 +24,7 @@ OBJS_ZER= server.o connection.o frontend.o backendmem.o newsgroup.o zerver.o mes
 OBJS_SQL= server.o connection.o frontend.o backendsql.o zerver.o 
 OBJS_CLI= connection.o our_client.o messagehandler.o
 
-all: zerver zerver-sql client
+all: prep zerver zerver-sql client 
 
 # zerver compile and link
 zerver: $(addprefix $(OBJ_DIR)/,$(OBJS_ZER))
@@ -43,12 +43,16 @@ client: $(addprefix $(OBJ_DIR)/,$(OBJS_CLI))
 
 # Create subdirs
 prep:
-	mkdir obj bin
+	mkdir -p $(OBJ_DIR)
+	mkdir -p $(BIN_DIR)
 
 # Standard clean
 clean:
-	rm -f $(OBJ_DIR)/* $(BIN_DIR)/*
+	rm -r $(OBJ_DIR) $(BIN_DIR)
 
 # Suffix rule for object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
 	$(CXX) -c $(CXXFLAGS) -o $@ $?
+
+
+
