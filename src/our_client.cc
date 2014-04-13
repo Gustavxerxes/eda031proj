@@ -53,21 +53,21 @@ string vertspace(int count){
 }
 
 string fixvertspace = vertspace(100);
-
+/*
 void helperWrite(const shared_ptr<Connection>& conn, int value){
-	conn->write((value >> 24) & 0xFF);
-	conn->write((value >> 16) & 0xFF);
-	conn->write((value >> 8)	 & 0xFF);
-	conn->write(value & 0xFF);
+	MessageHandler::writeCode(conn, (value >> 24) & 0xFF);
+	MessageHandler::writeCode(conn, (value >> 16) & 0xFF);
+	MessageHandler::writeCode(conn, (value >> 8)	 & 0xFF);
+	MessageHandler::writeCode(conn, value & 0xFF);
 }
 
-void writeInt(const shared_ptr<Connection>& conn, int value) {
-	conn->write(Protocol::PAR_NUM);
+void MessageHandler::writeInt(const shared_ptr<Connection>& conn, int value) {
+	MessageHandler::writeCode(conn, Protocol::PAR_NUM);
 	helperWrite(conn,value);
 }
 
-void writeString(const shared_ptr<Connection>& conn, const string& s) {
-	conn->write(Protocol::PAR_STRING);
+void MessageHandler::writeString(const shared_ptr<Connection>& conn, const string& s) {
+	MessageHandler::writeCode(conn, Protocol::PAR_STRING);
 
 	int n = s.size();
 	// Write N
@@ -75,34 +75,35 @@ void writeString(const shared_ptr<Connection>& conn, const string& s) {
 
 	// Write chars
 	for (auto it = s.begin(); it != s.end(); ++it) {
-		conn->write(*it);
+		MessageHandler::writeCode(conn, *it);
 	}
 }
 
 int helperRead(const shared_ptr<Connection>& conn){
-	unsigned char b1 = conn->read();
-	unsigned char b2 = conn->read();
-	unsigned char b3 = conn->read();
-	unsigned char b4 = conn->read();
+	unsigned char b1 = MessageHandler::readCode(conn);
+	unsigned char b2 = MessageHandler::readCode(conn);
+	unsigned char b3 = MessageHandler::readCode(conn);
+	unsigned char b4 = MessageHandler::readCode(conn);
 	return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
 }
 
 int readInt(const shared_ptr<Connection>& conn) {
-	if(conn->read()!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
+	if(MessageHandler::readCode(conn)!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
 	return helperRead(conn);
 }
 
 string readString(const shared_ptr<Connection>& conn) {
-	if(conn->read()!=Protocol::PAR_STRING) throw InvalidProtocolException(); // read PAR_STRING byte
+	if(MessageHandler::readCode(conn)!=Protocol::PAR_STRING) throw InvalidProtocolException(); // read PAR_STRING byte
 	// Read the four N bytes
 	int n = helperRead(conn);
 
 	string s;
 	for (int i = 0; i < n; ++i) {
-		s += conn->read();
+		s += MessageHandler::readCode(conn);
 	}
 	return s;
 }
+*/
 
 std::shared_ptr<Connection> connect(int argc, char* argv[]){
 
@@ -117,7 +118,9 @@ std::shared_ptr<Connection> connect(int argc, char* argv[]){
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
 	}
-	std::shared_ptr<Connection> conn = new Connection(argv[1], port);
+	//Connection conn(argv[1], port);
+	//Connection *conptr = &conn;
+	std::shared_ptr<Connection> conn = std::make_shared<Connection> (argv[1], port);
 	if (!conn->isConnected()) {
 		cerr << "Connection attempt failed" << endl;
 		exit(1);
@@ -163,20 +166,20 @@ void listNewsgroup(const shared_ptr<Connection>& conn, int& currentNewsgroup, st
 	currentArticle = -1;
 	currentTitel = "";
 	cout << "List of Newsgroup on the server:\n" << endl;
-	conn->write(Protocol::COM_LIST_NG);
-	conn->write(Protocol::COM_END);
+	MessageHandler::writeCode(conn, Protocol::COM_LIST_NG);
+	MessageHandler::writeCode(conn, Protocol::COM_END);
 	int numbOf;
-	if(conn->read()!=Protocol::ANS_LIST_NG) throw InvalidProtocolException(); //check correctness
-	numbOf = readInt(conn);
+	if(MessageHandler::readCode(conn)!=Protocol::ANS_LIST_NG) throw InvalidProtocolException(); //check correctness
+	numbOf = MessageHandler::readInt(conn);
 	if(numbOf == 0) cout << " No newsgroups exist yet" << endl;
 	int index;
 	bool exist = false;
 	string titel;
 	for(int i = 0; i < numbOf; ++i){
-		index = readInt(conn);
+		index = MessageHandler::readInt(conn);
 		if(index == currentNewsgroup) cout << "[ ";
 		cout << "(" << index << ")" << ": ";
-		titel = readString(conn);
+		titel = MessageHandler::readString(conn);
 		cout << titel;
 		if(index == currentNewsgroup){
 			cout << " ] ";
@@ -186,7 +189,7 @@ void listNewsgroup(const shared_ptr<Connection>& conn, int& currentNewsgroup, st
 		cout << endl;
 	}
 	if(!exist) currentNewsgroup = -1; 
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\n(c) -Create new newsgruop" << endl;
 	cout << fixline << endl;
 	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << ", press enter to list articles or type a command from list" << endl;
@@ -196,21 +199,21 @@ void listNewsgroup(const shared_ptr<Connection>& conn, int& currentNewsgroup, st
 
 void createNewsgroup(const shared_ptr<Connection>& conn){
 	cout << "\nTitle for new Newsgroup?: " << endl;
-	conn->write(Protocol::COM_CREATE_NG);
+	MessageHandler::writeCode(conn, Protocol::COM_CREATE_NG);
 	string title;
 	getline (cin,title);
-	writeString(conn, title); 
-	conn->write(Protocol::COM_END);
-	if(conn->read() !=Protocol::ANS_CREATE_NG) throw InvalidProtocolException(); //check correctness
-	char ans = conn->read();
+	MessageHandler::writeString(conn, title); 
+	MessageHandler::writeCode(conn, Protocol::COM_END);
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_CREATE_NG) throw InvalidProtocolException(); //check correctness
+	char ans = MessageHandler::readCode(conn);
 	switch(ans){
 		case Protocol::ANS_NAK:
-		 if(conn->read() == Protocol::ERR_NG_ALREADY_EXISTS) cout << "Newsgroup does already exist!" << endl;
+		 if(MessageHandler::readCode(conn) == Protocol::ERR_NG_ALREADY_EXISTS) cout << "Newsgroup does already exist!" << endl;
 		break;
 		case Protocol::ANS_ACK: cout << "The new newsgruop... " << title << " ...is now created" << endl;
 		break;
 	}
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
 }
@@ -226,17 +229,17 @@ void listArt(const shared_ptr<Connection>& conn, int& currentNewsgroup, string& 
 		printhelp(true);
 
 	}
-	conn->write(Protocol::COM_LIST_ART);
-	writeInt(conn, currentNewsgroup); 
-	conn->write(Protocol::COM_END);
+	MessageHandler::writeCode(conn, Protocol::COM_LIST_ART);
+	MessageHandler::writeInt(conn, currentNewsgroup); 
+	MessageHandler::writeCode(conn, Protocol::COM_END);
 	int numbOf;
-	if(conn->read()!=Protocol::ANS_LIST_ART) throw InvalidProtocolException(); //check correctness
-	char ans = conn->read();
+	if(MessageHandler::readCode(conn)!=Protocol::ANS_LIST_ART) throw InvalidProtocolException(); //check correctness
+	char ans = MessageHandler::readCode(conn);
 	switch (ans){
 		case Protocol::ANS_ACK:
 		{
 			cout << "Articels in newsgroup " << currentNewsgroup << ", " << currentTitel << ":\n" << endl;
-			numbOf = readInt(conn);
+			numbOf = MessageHandler::readInt(conn);
 			if(currentArticle < 1) {
 			cout << "[ (0) -Go back ]\n" << endl;
 			}else cout << "(0) -Go back\n" << endl;
@@ -247,10 +250,10 @@ void listArt(const shared_ptr<Connection>& conn, int& currentNewsgroup, string& 
 			int index;
 			string titel;
 			for(int i = 0; i < numbOf; ++i){
-				index = readInt(conn);
+				index = MessageHandler::readInt(conn);
 				if(index == currentArticle) cout << "[ ";
 				cout << "(" << index << ")" << ": ";
-				titel = readString(conn);
+				titel = MessageHandler::readString(conn);
 				cout << titel;
 				if(index == currentArticle){
 					cout << " ]";
@@ -264,30 +267,30 @@ void listArt(const shared_ptr<Connection>& conn, int& currentNewsgroup, string& 
 		}
 		break;
 		case Protocol::ANS_NAK: 
-			if(conn->read() == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
+			if(MessageHandler::readCode(conn) == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
 			currentArticle = -2;
 			currentNewsgroup = -1;
 		break;
 	} 
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	
 }
 
 void helperDelite(const shared_ptr<Connection>& conn, int& currentNewsgroup){
-	conn->write(Protocol::COM_DELETE_NG);
-	writeInt(conn, currentNewsgroup); 
-	conn->write(Protocol::COM_END);
-	if(conn->read() !=Protocol::ANS_DELETE_NG) throw InvalidProtocolException(); //check correctness
-	char ans = conn->read();
+	MessageHandler::writeCode(conn, Protocol::COM_DELETE_NG);
+	MessageHandler::writeInt(conn, currentNewsgroup); 
+	MessageHandler::writeCode(conn, Protocol::COM_END);
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_DELETE_NG) throw InvalidProtocolException(); //check correctness
+	char ans = MessageHandler::readCode(conn);
 	switch(ans){
 		case Protocol::ANS_NAK:
-		 if(conn->read() == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
+		 if(MessageHandler::readCode(conn) == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
 		 currentNewsgroup = -1;
 		break;
 		case Protocol::ANS_ACK: cout << "Newsgroup delited!" << endl;
 		break;
 	}
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
 }
@@ -317,21 +320,21 @@ void deliteNewsgroup(const shared_ptr<Connection>& conn, int& currentNewsgroup){
 }
 
 void getArticle(const shared_ptr<Connection>& conn, int& currentNewsgroup, int& currentArticle){
-	conn->write(Protocol::COM_GET_ART);
-	writeInt(conn, currentNewsgroup);
-	writeInt(conn, currentArticle);
-	conn->write(Protocol::COM_END);
-	if(conn->read() !=Protocol::ANS_GET_ART) throw InvalidProtocolException(); //check correctness
-	char ans = conn->read();
+	MessageHandler::writeCode(conn, Protocol::COM_GET_ART);
+	MessageHandler::writeInt(conn, currentNewsgroup);
+	MessageHandler::writeInt(conn, currentArticle);
+	MessageHandler::writeCode(conn, Protocol::COM_END);
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_GET_ART) throw InvalidProtocolException(); //check correctness
+	char ans = MessageHandler::readCode(conn);
 	cout << fixvertspace << endl;
 	switch(ans){
 		case Protocol::ANS_ACK:
-			cout << "Titel: " << readString(conn) << endl; 
-			cout << "Auther: " << readString(conn) << "\n" << endl;
-			cout << readString(conn) << endl;
+			cout << "Titel: " << MessageHandler::readString(conn) << endl; 
+			cout << "Auther: " << MessageHandler::readString(conn) << "\n" << endl;
+			cout << MessageHandler::readString(conn) << endl;
 		break;
 		case Protocol::ANS_NAK:
-			ans = conn->read();
+			ans = MessageHandler::readCode(conn);
 			if(ans == Protocol::ERR_NG_DOES_NOT_EXIST){
 				cout << "Newsgroup: " << currentNewsgroup << "does not exist" << endl;
 				currentNewsgroup = -2;
@@ -342,21 +345,21 @@ void getArticle(const shared_ptr<Connection>& conn, int& currentNewsgroup, int& 
 			}
 		break;
 	}
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
 }
 
 void helperRemove(const shared_ptr<Connection>& conn, int& currentNewsgroup, int& currentArticle){
-	conn->write(Protocol::COM_DELETE_ART);
-	writeInt(conn, currentNewsgroup); 
-	writeInt(conn, currentArticle); 
-	conn->write(Protocol::COM_END);
-	if(conn->read() !=Protocol::ANS_DELETE_ART) throw InvalidProtocolException(); //check correctness
-	char ans = conn->read();
+	MessageHandler::writeCode(conn, Protocol::COM_DELETE_ART);
+	MessageHandler::writeInt(conn, currentNewsgroup); 
+	MessageHandler::writeInt(conn, currentArticle); 
+	MessageHandler::writeCode(conn, Protocol::COM_END);
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_DELETE_ART) throw InvalidProtocolException(); //check correctness
+	char ans = MessageHandler::readCode(conn);
 	switch(ans){
 		case Protocol::ANS_NAK:
-		 	ans = conn->read();
+		 	ans = MessageHandler::readCode(conn);
 			if(ans == Protocol::ERR_NG_DOES_NOT_EXIST) {
 				cout << "Newsgroup: " << currentNewsgroup << "does not exist" << endl;
 				currentNewsgroup=-1;
@@ -370,7 +373,7 @@ void helperRemove(const shared_ptr<Connection>& conn, int& currentNewsgroup, int
 		currentArticle = 0;
 		break;
 	}
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
 }
@@ -414,15 +417,15 @@ void createArt(const shared_ptr<Connection>& conn, int& currentNewsgroup){
 		cin >> currentNewsgroup;
 		cin.ignore(10000,'\n');
 	}	
-	conn->write(Protocol::Protocol::COM_CREATE_ART);
-	writeInt(conn, currentNewsgroup);
+	MessageHandler::writeCode(conn, Protocol::Protocol::COM_CREATE_ART);
+	MessageHandler::writeInt(conn, currentNewsgroup);
 	cout << "\nTitle for new article: ";
 	string in;
 	getline (cin,in);
-	writeString(conn, in); 
+	MessageHandler::writeString(conn, in); 
 	cout << "\nAuther: ";
 	getline (cin,in);
-	writeString(conn, in); 
+	MessageHandler::writeString(conn, in); 
 	cout << "\nText (end input with blank newline): " << endl;
 	getline (cin,in);
 	string result = in;
@@ -431,18 +434,18 @@ void createArt(const shared_ptr<Connection>& conn, int& currentNewsgroup){
 		getline(cin, in);
 	    result = result + "\n" + in;
 	}
-	writeString(conn, result); 
-	conn->write(Protocol::COM_END);
-	if(conn->read() !=Protocol::ANS_CREATE_ART) throw InvalidProtocolException(); //check correctness
-	char ans = conn->read();
+	MessageHandler::writeString(conn, result); 
+	MessageHandler::writeCode(conn, Protocol::COM_END);
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_CREATE_ART) throw InvalidProtocolException(); //check correctness
+	char ans = MessageHandler::readCode(conn);
 	switch(ans){
 		case Protocol::ANS_NAK:
-		  if(conn->read() == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
+		  if(MessageHandler::readCode(conn) == Protocol::ERR_NG_DOES_NOT_EXIST) cout << "Newsgroup does not exist!" << endl;
 		break;
 		case Protocol::ANS_ACK: cout << "Articel created" << endl;
 		break;
 	}
-	if(conn->read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
+	if(MessageHandler::readCode(conn) !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
 }
@@ -453,7 +456,7 @@ int main(int argc, char* argv[]) {
  	int currentArticle = -1;
  	string currentTitel = "";
 	string inCom;
-	Connection conn = connect(argc, argv); //connetion skapas här
+	std::shared_ptr<Connection> conn = connect(argc, argv); //connetion skapas här
 	printwelcome(argv);
 	cout << "\npress enter to continue";
 	cin.ignore(10000,'\n');
