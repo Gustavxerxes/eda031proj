@@ -141,7 +141,7 @@ void printhelp(bool b){
 	
 	cout << "(h) -Print this list of commands" << endl;
 	cout << "(n) -List newsgroups" << endl;
-	cout << "(c) -Create new newsgruop" << endl;
+	cout << "(c) -Create new newsgroup" << endl;
 	cout << "(d) -Delite newsgroups" << endl;	
 	cout << "(l) -List articles in curent newsgroup" << endl;
 	cout << "(w) -Write new article" << endl;
@@ -186,7 +186,7 @@ void listNewsgroup(const Connection& conn, int& currentNewsgroup, string& curren
 	}
 	if(!exist) currentNewsgroup = -1; 
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
-	cout << "\n(c) -Create new newsgruop" << endl;
+	cout << "\n(c) -Create new newsgroup" << endl;
 	cout << fixline << endl;
 	if(currentNewsgroup > 0) cout << "Newsgroup selected: " << currentNewsgroup << ", press enter to list articles or type a command from list" << endl;
 	else if(numbOf > 0) cout << "Select Newsgroup with number or type a command from list" << endl;
@@ -206,7 +206,7 @@ void createNewsgroup(const Connection& conn){
 		case Protocol::ANS_NAK:
 		 if(conn.read() == Protocol::ERR_NG_ALREADY_EXISTS) cout << "Newsgroup does already exist!" << endl;
 		break;
-		case Protocol::ANS_ACK: cout << "The new newsgruop... " << title << " ...is now created" << endl;
+		case Protocol::ANS_ACK: cout << "The new newsgroup... " << title << " ...is now created" << endl;
 		break;
 	}
 	if(conn.read() !=Protocol::ANS_END) throw InvalidProtocolException(); //check correctness
