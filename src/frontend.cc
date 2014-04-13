@@ -22,14 +22,14 @@ void FrontEnd::listNewsGroup(const shared_ptr<Connection>& conn) {
 	backend->listNG(ngs);
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_LIST_NG);
+	MH::writeCode(conn, P::ANS_LIST_NG);
 	int str_len = ngs.size();
 	MH::writeInt(conn, str_len);
 	for (auto it = ngs.begin(); it != ngs.end(); ++it) {
 		MH::writeInt(conn, it->first);
 		MH::writeString(conn, it->second);
 	}
-		MessageHandler::writeCode(conn, P::ANS_END);
+		MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::createNewsGroup(const shared_ptr<Connection>& conn) {
@@ -38,14 +38,14 @@ void FrontEnd::createNewsGroup(const shared_ptr<Connection>& conn) {
 	bool succ = backend->addNG(name);
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_CREATE_NG);
+	MH::writeCode(conn, P::ANS_CREATE_NG);
 	if (succ) {
-		MessageHandler::writeCode(conn, P::ANS_ACK);
+		MH::writeCode(conn, P::ANS_ACK);
 	} else {
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_NG_ALREADY_EXISTS);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_NG_ALREADY_EXISTS);
 	}
-	MessageHandler::writeCode(conn, P::ANS_END);
+	MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::deleteNewsGroup(const shared_ptr<Connection>& conn) {
@@ -53,14 +53,14 @@ void FrontEnd::deleteNewsGroup(const shared_ptr<Connection>& conn) {
 	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_DELETE_NG);
+	MH::writeCode(conn, P::ANS_DELETE_NG);
 	if (succ) {
-		MessageHandler::writeCode(conn, P::ANS_ACK);
+		MH::writeCode(conn, P::ANS_ACK);
 	} else {
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
 	}
-	MessageHandler::writeCode(conn, P::ANS_END);
+	MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
@@ -70,9 +70,9 @@ void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
 	bool succ = backend->listArticles(ng_id, arts);
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_LIST_ART);
+	MH::writeCode(conn, P::ANS_LIST_ART);
 	if (succ) {
-		MessageHandler::writeCode(conn, P::ANS_ACK);
+		MH::writeCode(conn, P::ANS_ACK);
 		int str_len = arts.size();
 		MH::writeInt(conn, str_len);
 		for (auto it = arts.begin(); it != arts.end(); ++it) {
@@ -80,10 +80,10 @@ void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
 			MH::writeString(conn, it->second);
 		}
 	} else {
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
 	}
-	MessageHandler::writeCode(conn, P::ANS_END);
+	MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
@@ -93,13 +93,13 @@ void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
 	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_CREATE_ART);
-	if (succ) MessageHandler::writeCode(conn, P::ANS_ACK);
+	MH::writeCode(conn, P::ANS_CREATE_ART);
+	if (succ) MH::writeCode(conn, P::ANS_ACK);
 	else {
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
 	}
-	MessageHandler::writeCode(conn, P::ANS_END);
+	MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
@@ -109,24 +109,24 @@ void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
 	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_DELETE_ART);
+	MH::writeCode(conn, P::ANS_DELETE_ART);
 	switch (succ)
 	{
 	case BackEnd::NO_ERR :
-		MessageHandler::writeCode(conn, P::ANS_ACK);
+		MH::writeCode(conn, P::ANS_ACK);
 		break;
 	case BackEnd::ERR_NG :
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
 		break;
 	case BackEnd::ERR_ART :
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_ART_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_ART_DOES_NOT_EXIST);
 		break;
 	default :
 		break;
 	}
-	MessageHandler::writeCode(conn, P::ANS_END);
+	MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
@@ -137,27 +137,27 @@ void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
 	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
-	MessageHandler::writeCode(conn, P::ANS_GET_ART);
+	MH::writeCode(conn, P::ANS_GET_ART);
 	switch (succ)
 	{
 	case BackEnd::NO_ERR :
-		MessageHandler::writeCode(conn, P::ANS_ACK);
+		MH::writeCode(conn, P::ANS_ACK);
 		MH::writeString(conn, article[0]);
 		MH::writeString(conn, article[1]);
 		MH::writeString(conn, article[2]);
 		break;
 	case BackEnd::ERR_NG :
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_NG_DOES_NOT_EXIST);
 		break;
 	case BackEnd::ERR_ART :
-		MessageHandler::writeCode(conn, P::ANS_NAK);
-		MessageHandler::writeCode(conn, P::ERR_ART_DOES_NOT_EXIST);
+		MH::writeCode(conn, P::ANS_NAK);
+		MH::writeCode(conn, P::ERR_ART_DOES_NOT_EXIST);
 		break;
 	default :
 		break;
 	}
-	MessageHandler::writeCode(conn, P::ANS_END);
+	MH::writeCode(conn, P::ANS_END);
 }
 
 void FrontEnd::readAndReply(const shared_ptr<Connection>& conn) {
