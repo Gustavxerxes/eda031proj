@@ -20,9 +20,9 @@ BIN_DIR = bin
 
 SQL_LIBS = -lmysqlcppconn
 
-OBJS_ZER= server.o connection.o frontend.o backendmem.o newsgroup.o zerver.o
-OBJS_SQL= server.o connection.o frontend.o backendsql.o zerver.o
-OBJS_CLI= connection.o alpha_client.o
+OBJS_ZER= server.o connection.o frontend.o backendmem.o newsgroup.o zerver.o messagehandler.o
+OBJS_SQL= server.o connection.o frontend.o backendsql.o zerver.o 
+OBJS_CLI= connection.o our_client.o messagehandler.o
 
 all: zerver zerver-sql client
 

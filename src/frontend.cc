@@ -17,24 +17,24 @@ using MH = MessageHandler;
 using P = Protocol;
 
 void FrontEnd::listNewsGroup(const shared_ptr<Connection>& conn) {
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 	vector<pair<int,string>> ngs;
 	backend->listNG(ngs);
 
 	// Answer
 	conn->write(P::ANS_LIST_NG);
 	int str_len = ngs.size();
-	writeInt(conn, str_len);
+	MH::writeInt(conn, str_len);
 	for (auto it = ngs.begin(); it != ngs.end(); ++it) {
-		writeInt(conn, it->first);
-		writeString(conn, it->second);
+		MH::writeInt(conn, it->first);
+		MH::writeString(conn, it->second);
 	}
 		conn->write(P::ANS_END);
 }
 
 void FrontEnd::createNewsGroup(const shared_ptr<Connection>& conn) {
-	string name = readString(conn);
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	string name = MH::readString(conn);
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 	bool succ = backend->addNG(name);
 
 	// Answer
@@ -49,8 +49,8 @@ void FrontEnd::createNewsGroup(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::deleteNewsGroup(const shared_ptr<Connection>& conn) {
-	bool succ = backend->removeNG(readInt(conn));
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	bool succ = backend->removeNG(MH::readInt(conn));
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(P::ANS_DELETE_NG);
@@ -64,8 +64,8 @@ void FrontEnd::deleteNewsGroup(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
-	int ng_id = readInt(conn);
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	int ng_id = MH::readInt(conn);
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 	vector<pair<int,string>> arts;
 	bool succ = backend->listArticles(ng_id, arts);
 
@@ -74,10 +74,10 @@ void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
 	if (succ) {
 		conn->write(P::ANS_ACK);
 		int str_len = arts.size();
-		writeInt(conn, str_len);
+		MH::writeInt(conn, str_len);
 		for (auto it = arts.begin(); it != arts.end(); ++it) {
-			writeInt(conn, it->first);
-			writeString(conn, it->second);
+			MH::writeInt(conn, it->first);
+			MH::writeString(conn, it->second);
 		}
 	} else {
 		conn->write(P::ANS_NAK);
@@ -87,10 +87,10 @@ void FrontEnd::listArticles(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
-	int ng_id = readInt(conn);
-	string title = readString(conn), author = readString(conn), textbody = readString(conn);
+	int ng_id = MH::readInt(conn);
+	string title = MH::readString(conn), author = MH::readString(conn), textbody = MH::readString(conn);
 	bool succ = backend->addArticle(ng_id, title, author, textbody);
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(P::ANS_CREATE_ART);
@@ -103,10 +103,10 @@ void FrontEnd::createArticle(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
-	int ng = readInt(conn);
-	int art = readInt(conn);
+	int ng = MH::readInt(conn);
+	int art = MH::readInt(conn);
 	auto succ = backend->removeArticle(ng, art);
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(P::ANS_DELETE_ART);
@@ -131,10 +131,10 @@ void FrontEnd::deleteArticle(const shared_ptr<Connection>& conn) {
 
 void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
 	vector<string> article;
-	int ng = readInt(conn);
-	int art = readInt(conn);
+	int ng = MH::readInt(conn);
+	int art = MH::readInt(conn);
 	auto succ = backend->getArticle(ng, art, article);
-	if (MH::readByte(conn) != P::COM_END) throw InvalidProtocolException();
+	if (MH::readCode(conn) != P::COM_END) throw InvalidProtocolException();
 
 	// Answer
 	conn->write(P::ANS_GET_ART);
@@ -142,9 +142,9 @@ void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
 	{
 	case BackEnd::NO_ERR :
 		conn->write(P::ANS_ACK);
-		writeString(conn, article[0]);
-		writeString(conn, article[1]);
-		writeString(conn, article[2]);
+		MH::writeString(conn, article[0]);
+		MH::writeString(conn, article[1]);
+		MH::writeString(conn, article[2]);
 		break;
 	case BackEnd::ERR_NG :
 		conn->write(P::ANS_NAK);
@@ -161,7 +161,7 @@ void FrontEnd::getArticle(const shared_ptr<Connection>& conn) {
 }
 
 void FrontEnd::readAndReply(const shared_ptr<Connection>& conn) {
-	unsigned char cmd = MH::readByte(conn);
+	unsigned char cmd = MH::readCode(conn);
 	switch (cmd)
 	{
 	case P::COM_LIST_NG :

@@ -20,13 +20,9 @@ public:
 	static void writeCode(const std::shared_ptr<Connection>& conn, const unsigned char code);
 	static int readInt(const std::shared_ptr<Connection>& conn);
 	static std::string readString(const std::shared_ptr<Connection>& conn);
-	static unsigned char readByte(const std::shared_ptr<Connection>& conn);
+	static unsigned char readCode(const std::shared_ptr<Connection>& conn);
 
 private:
-	Connection conn;
-
-	int helperRead();
-	void helperWrite(int value);
 };
 
 #endif
