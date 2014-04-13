@@ -53,57 +53,7 @@ string vertspace(int count){
 }
 
 string fixvertspace = vertspace(100);
-/*
-void helperWrite(const shared_ptr<Connection>& conn, int value){
-	MessageHandler::writeCode(conn, (value >> 24) & 0xFF);
-	MessageHandler::writeCode(conn, (value >> 16) & 0xFF);
-	MessageHandler::writeCode(conn, (value >> 8)	 & 0xFF);
-	MessageHandler::writeCode(conn, value & 0xFF);
-}
 
-void MessageHandler::writeInt(const shared_ptr<Connection>& conn, int value) {
-	MessageHandler::writeCode(conn, Protocol::PAR_NUM);
-	helperWrite(conn,value);
-}
-
-void MessageHandler::writeString(const shared_ptr<Connection>& conn, const string& s) {
-	MessageHandler::writeCode(conn, Protocol::PAR_STRING);
-
-	int n = s.size();
-	// Write N
-	helperWrite(conn,n);
-
-	// Write chars
-	for (auto it = s.begin(); it != s.end(); ++it) {
-		MessageHandler::writeCode(conn, *it);
-	}
-}
-
-int helperRead(const shared_ptr<Connection>& conn){
-	unsigned char b1 = MessageHandler::readCode(conn);
-	unsigned char b2 = MessageHandler::readCode(conn);
-	unsigned char b3 = MessageHandler::readCode(conn);
-	unsigned char b4 = MessageHandler::readCode(conn);
-	return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
-}
-
-int readInt(const shared_ptr<Connection>& conn) {
-	if(MessageHandler::readCode(conn)!=Protocol::PAR_NUM) throw InvalidProtocolException(); // read PAR_NUM byte
-	return helperRead(conn);
-}
-
-string readString(const shared_ptr<Connection>& conn) {
-	if(MessageHandler::readCode(conn)!=Protocol::PAR_STRING) throw InvalidProtocolException(); // read PAR_STRING byte
-	// Read the four N bytes
-	int n = helperRead(conn);
-
-	string s;
-	for (int i = 0; i < n; ++i) {
-		s += MessageHandler::readCode(conn);
-	}
-	return s;
-}
-*/
 
 std::shared_ptr<Connection> connect(int argc, char* argv[]){
 
@@ -118,8 +68,6 @@ std::shared_ptr<Connection> connect(int argc, char* argv[]){
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
 	}
-	//Connection conn(argv[1], port);
-	//Connection *conptr = &conn;
 	std::shared_ptr<Connection> conn = std::make_shared<Connection> (argv[1], port);
 	if (!conn->isConnected()) {
 		cerr << "Connection attempt failed" << endl;
